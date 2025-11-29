@@ -1,0 +1,25 @@
+# Never track env secrets
+*.env
+*.env.local
+*.env.production
+*.env.development
+
+# Ignore root-level node things (should not exist)
+node_modules/
+package-lock.json
+package.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
