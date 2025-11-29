@@ -6,8 +6,7 @@
 
 # Ignore root-level node things (should not exist)
 node_modules/
-package-lock.json
-package.json
+
 
 # Logs
 npm-debug.log*
