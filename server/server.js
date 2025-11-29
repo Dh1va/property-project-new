@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://property-site-peach.vercel.app"],
+    origin: ["http://localhost:5173", ],
     credentials: true,
   })
 );
