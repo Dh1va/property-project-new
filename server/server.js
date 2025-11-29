@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", ],
+    origin: ["http://localhost:5173", "https://property-project-new.vercel.app" ],
     credentials: true,
   })
 );
@@ -45,6 +45,10 @@ app.use("/api/enquiry", enquiryRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack || err);
   res.status(err.status || 500).json({ message: err.message || "Server error" });
+});
+
+app.get("/", (req, res) => {
+  res.send("Backend is running ✅");
 });
 
 const PORT = process.env.PORT || 5000;
