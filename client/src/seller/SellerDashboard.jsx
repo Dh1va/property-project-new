@@ -16,7 +16,8 @@ import {
 /**
  * Seller Dashboard
  * - Shows seller stats (Total, Active, Pending, Rejected)
- * - Lists recent seller properties in the SAME style as AdminDashboard's "Recent properties"
+ * - Lists recent seller properties with admin-style recent list
+ * - Has delete confirmation dialog like admin
  */
 
 function StatCard({
@@ -64,6 +65,8 @@ export default function SellerDashboard() {
   const [loading, setLoading] = useState(true);
   const [properties, setProperties] = useState([]);
   const [busyIds, setBusyIds] = useState(new Set());
+  const [deleteTarget, setDeleteTarget] = useState(null); // 👈 delete modal target
+
   const navigate = useNavigate();
 
   const fetchMyProperties = async () => {
@@ -104,14 +107,16 @@ export default function SellerDashboard() {
     });
   };
 
-  const handleDelete = async (prop) => {
-    if (
-      !confirm(
-        `Permanently delete "${prop.title}"? This cannot be undone.`
-      )
-    )
-      return;
-    const id = prop._id || prop.id;
+  // open delete modal
+  const confirmDelete = (prop) => {
+    setDeleteTarget(prop);
+  };
+
+  // actually delete after confirmation
+  const performDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget._id || deleteTarget.id;
+
     markBusy(id, true);
     try {
       await API.delete(`/properties/${id}`);
@@ -123,6 +128,7 @@ export default function SellerDashboard() {
       alert(err?.response?.data?.message || "Delete failed");
     } finally {
       markBusy(id, false);
+      setDeleteTarget(null);
     }
   };
 
@@ -199,137 +205,138 @@ export default function SellerDashboard() {
         />
       </div>
 
-      {/* Main area: Recent properties block (same style as admin) + side cards */}
+      {/* Main area: Recent properties block + side cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-       {/* LEFT: Recent properties (admin-style list + action row) */}
-<div className="lg:col-span-2 space-y-4">
-  <div className="bg-white p-4 rounded shadow">
-    <div className="flex items-center justify-between">
-      <h3 className="font-semibold">Your Recent Properties</h3>
-      <div className="text-sm text-gray-500">{total} total</div>
-    </div>
+        {/* LEFT: Recent properties (admin-style list + action row) */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-white p-4 rounded shadow">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold">Your Recent Properties</h3>
+              <div className="text-sm text-gray-500">{total} total</div>
+            </div>
 
-    {properties.length === 0 ? (
-      <div className="text-gray-500 mt-4">
-        You have no properties yet.
-      </div>
-    ) : (
-      <ul className="mt-3 space-y-3">
-        {properties.slice(0, 6).map((p) => {
-          const id = p._id || p.id;
-          const img = p.images?.[0];
-          const price = p.totalPrice ?? p.price ?? null;
-          const status = p.status || "active";
-          const isBusy = busyIds.has(id);
+            {properties.length === 0 ? (
+              <div className="text-gray-500 mt-4">
+                You have no properties yet.
+              </div>
+            ) : (
+              <ul className="mt-3 space-y-3">
+                {properties.slice(0, 6).map((p) => {
+                  const id = p._id || p.id;
+                  const img = p.images?.[0];
+                  const price = p.totalPrice ?? p.price ?? null;
+                  const status = p.status || "active";
+                  const isBusy = busyIds.has(id);
 
-          return (
-            <li
-              key={id}
-              className="border border-gray-100 rounded-lg p-3 bg-white"
-            >
-              {/* TOP ROW */}
-              <div className="flex items-start gap-3">
-                {/* Thumbnail */}
-                <div className="w-14 h-12 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
-                  {img ? (
-                    <img
-                      src={img}
-                      alt={p.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-[10px] text-gray-400">
-                      No image
-                    </span>
-                  )}
-                </div>
-
-                {/* Title + ID + Price */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {p.title}
-                      </div>
-                      <div className="text-xs text-gray-500 truncate">
-                        {p.city || p.place || "-"} •{" "}
-                        <span className="font-mono">
-                          {p.refNumber || (id || "").slice(0, 8)}
-                        </span>
-                      </div>
-                      {price !== null && (
-                        <div className="text-xs text-gray-700 mt-0.5">
-                          ₹ {Number(price).toLocaleString("en-IN")}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Status chip */}
-                    <span
-                      className={`flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-medium ${
-                        status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                  return (
+                    <li
+                      key={id}
+                      className="border border-gray-100 rounded-lg p-3 bg-white"
                     >
-                      {status}
-                    </span>
-                  </div>
+                      {/* TOP ROW */}
+                      <div className="flex items-start gap-3">
+                        {/* Thumbnail */}
+                        <div className="w-14 h-12 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
+                          {img ? (
+                            <img
+                              src={img}
+                              alt={p.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-[10px] text-gray-400">
+                              No image
+                            </span>
+                          )}
+                        </div>
 
-                  {/* Rejection reason */}
-                  {status === "rejected" && p.rejectionReason && (
-                    <div className="mt-1 text-xs text-red-600">
-                      Reason: {p.rejectionReason}
-                    </div>
-                  )}
-                </div>
-              </div>
+                        {/* Title + ID + Price */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">
+                                {p.title}
+                              </div>
+                              <div className="text-xs text-gray-500 truncate">
+                                {p.city || p.place || "-"} •{" "}
+                                <span className="font-mono">
+                                  {p.refNumber || (id || "").slice(0, 8)}
+                                </span>
+                              </div>
+                              {price !== null && (
+                                <div className="text-xs text-gray-700 mt-0.5">
+                                  ₹ {Number(price).toLocaleString("en-IN")}
+                                </div>
+                              )}
+                            </div>
 
-              {/* ACTION BUTTON ROW */}
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <button
-                  onClick={() => handleEdit(p)}
-                  className="px-3 py-1 rounded border text-gray-700 hover:bg-gray-50"
-                >
-                  Edit
-                </button>
+                            {/* Status chip */}
+                            <span
+                              className={`flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-medium ${
+                                status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {status}
+                            </span>
+                          </div>
 
-                <button
-                  onClick={() => handleDelete(p)}
-                  disabled={isBusy}
-                  className="px-3 py-1 rounded border text-red-600 hover:bg-red-50 disabled:opacity-50"
-                >
-                  Delete
-                </button>
+                          {/* Rejection reason */}
+                          {status === "rejected" && p.rejectionReason && (
+                            <div className="mt-1 text-xs text-red-600">
+                              Reason: {p.rejectionReason}
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-                <Link
-                  to={`/seller/properties/${id}`}
-                  className="px-3 py-1 rounded border text-blue-600 hover:bg-blue-50"
-                >
-                  Open
-                </Link>
+                      {/* ACTION BUTTON ROW */}
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                        <button
+                          onClick={() => handleEdit(p)}
+                          className="px-3 py-1 rounded border text-gray-700 hover:bg-gray-50 flex items-center gap-1"
+                        >
+                          <FaEdit className="text-xs" />
+                          Edit
+                        </button>
 
-                {p.agentNumber && (
-                  <a
-                    href={`tel:${p.agentNumber}`}
-                    className="px-3 py-1 rounded border text-blue-600 hover:bg-blue-50"
-                  >
-                    Call Agent
-                  </a>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    )}
-  </div>
-</div>
+                        <button
+                          onClick={() => confirmDelete(p)}
+                          disabled={isBusy}
+                          className="px-3 py-1 rounded border text-red-600 hover:bg-red-50 disabled:opacity-50 flex items-center gap-1"
+                        >
+                          <FaTrashAlt className="text-xs" />
+                          Delete
+                        </button>
 
+                        <Link
+                          to={`/seller/properties/${id}`}
+                          className="px-3 py-1 rounded border text-blue-600 hover:bg-blue-50 text-xs flex items-center gap-1"
+                        >
+                          View
+                        </Link>
 
-        {/* RIGHT: Profile / Support / Tips (unchanged) */}
+                        {p.agentNumber && (
+                          <a
+                            href={`tel:${p.agentNumber}`}
+                            className="px-3 py-1 rounded border text-blue-600 hover:bg-blue-50 text-xs"
+                          >
+                            Call Agent
+                          </a>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT: Profile / Support / Tips */}
         <div className="space-y-6">
           <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
             <h4 className="font-semibold text-gray-800">Profile</h4>
@@ -371,6 +378,39 @@ export default function SellerDashboard() {
           </div>
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Delete Property?
+            </h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-gray-800">
+                "{deleteTarget.title}"
+              </span>
+              ? This action cannot be undone.
+            </p>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={performDelete}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
