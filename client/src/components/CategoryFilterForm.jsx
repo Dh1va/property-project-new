@@ -27,7 +27,7 @@ export default function CategoryFilterForm({ onFilter }) {
     city: "",
     rooms: "",
     amenities: [],
-    maxPrice: 0, // MUST BE NUMBER
+    maxPrice: 0,
   };
 
   const [filters, setFilters] = useState(initialFilters);
@@ -48,6 +48,7 @@ export default function CategoryFilterForm({ onFilter }) {
     onFilter(initialFilters);
   };
 
+  // 🔎 debounce-based API call
   const fetchLocations = (value) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -78,6 +79,15 @@ export default function CategoryFilterForm({ onFilter }) {
     fetchLocations(value);
   };
 
+  // 👈 when user selects from dropdown
+  const handleLocationSelect = (item) => {
+    setFilters((prev) => ({
+      ...prev,
+      city: item.city || "",
+    }));
+    setLocationSuggestions([]);
+  };
+
   const toggleAmenity = (amenity) => {
     setFilters((prev) => ({
       ...prev,
@@ -92,7 +102,7 @@ export default function CategoryFilterForm({ onFilter }) {
       {/* TOP ROW */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
 
-        {/* CITY */}
+        {/* CITY WITH AUTO-SUGGEST */}
         <div className="relative flex-1">
           <input
             type="text"
@@ -102,6 +112,44 @@ export default function CategoryFilterForm({ onFilter }) {
             className="w-full border rounded-full px-4 py-2 h-10 text-sm md:text-base pr-10"
             autoComplete="off"
           />
+
+          {/* Suggestions dropdown */}
+          {filters.city && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-md max-h-56 overflow-y-auto z-50">
+              {/* Loading */}
+              {locationLoading && (
+                <div className="px-3 py-2 text-gray-500 text-sm">
+                  Searching…
+                </div>
+              )}
+
+              {/* Results */}
+              {!locationLoading &&
+                locationSuggestions.length > 0 &&
+                locationSuggestions.map((item, idx) => {
+                  const label = item.postalCode
+                    ? `${item.postalCode} – ${item.city}`
+                    : item.city;
+
+                  return (
+                    <div
+                      key={`${item.city}-${item.postalCode}-${idx}`}
+                      onClick={() => handleLocationSelect(item)}
+                      className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm"
+                    >
+                      {label}
+                    </div>
+                  );
+                })}
+
+              {/* No results */}
+              {!locationLoading && locationSuggestions.length === 0 && (
+                <div className="px-3 py-2 text-gray-500 text-sm">
+                  No suggestions found
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ROOMS */}
@@ -148,7 +196,6 @@ export default function CategoryFilterForm({ onFilter }) {
                 max={10000000}
                 step={5000}
                 value={filters.maxPrice}
-                placeholder="Max price"
                 onChange={(e) =>
                   setFilters((prev) => ({
                     ...prev,

@@ -3,9 +3,14 @@ import React, { useEffect, useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
-/* Reuse small modal like in admin */
+/* Small close icon */
 const CloseIcon = () => (
-  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <svg
+    className="w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+  >
     <path
       strokeWidth="2"
       strokeLinecap="round"
@@ -87,7 +92,9 @@ export default function MyProperties() {
       setBusyDelete(true);
       const id = deleteTarget._id || deleteTarget.id;
       await API.delete(`/properties/${id}`);
-      setProperties((prev) => prev.filter((p) => (p._id || p.id) !== id));
+      setProperties((prev) =>
+        prev.filter((p) => (p._id || p.id) !== id)
+      );
       closeDeleteModal();
     } catch (err) {
       console.error("Delete failed", err);
@@ -100,13 +107,20 @@ export default function MyProperties() {
   if (loading) return <div className="p-6">Loading properties…</div>;
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+      {/* Header – responsive like admin */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-semibold">My Properties</h2>
-        <div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={fetchProps}
+            className="px-4 py-2 border rounded bg-white text-sm hover:bg-gray-100"
+          >
+            Refresh
+          </button>
           <button
             onClick={() => navigate("/seller/properties/new")}
-            className="px-4 py-2 bg-black text-white rounded cursor-pointer"
+            className="px-4 py-2 bg-black text-white rounded text-sm"
           >
             Add Property
           </button>
@@ -114,25 +128,36 @@ export default function MyProperties() {
       </div>
 
       {properties.length === 0 ? (
-        <div className="text-gray-500">You have no properties yet.</div>
+        <div className="text-gray-500">
+          You have no properties yet.
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((p) => {
             const id = p._id || p.id;
             const img = p.images?.[0] || "";
             const price = p.totalPrice ?? p.price ?? null;
+            const status = p.status || "active";
 
             const displayId =
-              p.refNumber || `PROP-${String(p.id || "").padStart(3, "0") || id}`;
+              p.refNumber ||
+              `PROP-${String(p.id || "").padStart(3, "0") || id}`;
 
-            // For seller dashboard, just show "You" or their name if populated
             const uploaderName = p.seller?.name || "You";
 
             return (
-              <div key={id} className="bg-white p-4 rounded shadow flex flex-col">
-                <div className="w-full h-40 mb-3 bg-gray-100 rounded overflow-hidden">
+              <div
+                key={id}
+                className="bg-white rounded-xl shadow border border-gray-100 flex flex-col overflow-hidden"
+              >
+                {/* image */}
+                <div className="w-full h-36 sm:h-40 bg-gray-100 overflow-hidden">
                   {img ? (
-                    <img src={img} alt={p.title} className="w-full h-full object-cover" />
+                    <img
+                      src={img}
+                      alt={p.title}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                       No image
@@ -140,38 +165,76 @@ export default function MyProperties() {
                   )}
                 </div>
 
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{p.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {p.city || p.place || "-"}, {p.country || "-"}
-                  </p>
+                {/* content */}
+                <div className="p-4 flex flex-col flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-sm sm:text-base truncate">
+                        {p.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 truncate">
+                        {p.city || p.place || "-"},{" "}
+                        {p.country || "-"}
+                      </p>
 
-                  {/* ID + uploader info */}
-                  <p className="text-xs text-gray-500 mt-1">
-                    ID: <span className="font-mono">{displayId}</span>
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Uploaded by: <span className="font-semibold">{uploaderName}</span>
-                  </p>
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        ID:{" "}
+                        <span className="font-mono">
+                          {displayId}
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-gray-500">
+                        Uploaded by:{" "}
+                        <span className="font-semibold">
+                          {uploaderName}
+                        </span>
+                      </p>
+                    </div>
 
-                  <p className="mt-2 font-semibold">
-                    {price !== null ? `₹ ${Number(price).toLocaleString()}` : "-"}
-                  </p>
-                </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                          status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {status}
+                      </span>
+                      {p.status === "rejected" &&
+                        p.rejectionReason && (
+                          <span className="text-[11px] text-red-600 max-w-[120px] text-right">
+                            {p.rejectionReason}
+                          </span>
+                        )}
+                    </div>
+                  </div>
 
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={() => navigate(`/seller/properties/${id}`)}
-                    className="px-3 py-1 border rounded cursor-pointer"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => openDeleteModal(p)}
-                    className="px-3 py-1 border rounded text-red-600 cursor-pointer"
-                  >
-                    Delete
-                  </button>
+                  {price !== null && (
+                    <p className="mt-2 font-semibold text-sm sm:text-base">
+                      ₹ {Number(price).toLocaleString("en-IN")}
+                    </p>
+                  )}
+
+                  {/* actions – wrap on mobile */}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      onClick={() =>
+                        navigate(`/seller/properties/${id}`)
+                      }
+                      className="px-3 py-1 border rounded text-xs sm:text-sm cursor-pointer hover:bg-gray-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(p)}
+                      className="px-3 py-1 border rounded text-xs sm:text-sm text-red-600 cursor-pointer hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -191,7 +254,9 @@ export default function MyProperties() {
             {deleteTarget?.title ? (
               <>
                 {" "}
-                <span className="font-semibold">"{deleteTarget.title}"</span>
+                <span className="font-semibold">
+                  "{deleteTarget.title}"
+                </span>
               </>
             ) : null}
             . This action cannot be undone.
