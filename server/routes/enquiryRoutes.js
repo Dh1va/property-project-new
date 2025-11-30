@@ -1,4 +1,3 @@
-// server/routes/enquiryRoutes.js
 import express from "express";
 import nodemailer from "nodemailer";
 import Enquiry from "../models/Enquiry.js";
@@ -15,8 +14,92 @@ const genRef = (prefix = "GEN") => {
   return `${prefix}-${y}-${rand}`;
 };
 
+// ✅ Create transporter ONCE
+let transporter = null;
+if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+  });
+}
+
+// ✅ Background email sender — includes FULL message
+const sendEnquiryEmails = async ({
+  name,
+  email,
+  phone,
+  message,
+  refNumber,
+  finalPropertyTitle,
+  finalPropertyRef,
+}) => {
+  if (!transporter || !process.env.ADMIN_EMAIL) return;
+
+  // Admin email
+  const adminMail = {
+    from: process.env.MAIL_USER,
+    to: process.env.ADMIN_EMAIL,
+    subject: `New Enquiry - ${finalPropertyTitle || "General"}`,
+    html: `
+      <h3>New Enquiry Received</h3>
+      <p><b>Ref Number:</b> ${refNumber}</p>
+      ${
+        finalPropertyRef
+          ? `<p><b>Property Ref:</b> ${finalPropertyRef}</p>`
+          : ""
+      }
+      <p><b>Property:</b> ${finalPropertyTitle || "General"}</p>
+
+      <hr/>
+      <p><b>Name:</b> ${name}</p>
+      <p><b>Email:</b> ${email}</p>
+      <p><b>Phone:</b> ${phone || "N/A"}</p>
+
+      <p style="margin-top:10px;"><b>Message:</b><br/>${message}</p>
+    `,
+  };
+
+  // User confirmation email (includes message)
+  const userMail = {
+    from: process.env.MAIL_USER,
+    to: email,
+    subject: "We received your enquiry",
+    html: `
+      <h3>Hello ${name},</h3>
+      <p>Thank you for contacting us. Your enquiry has been received.</p>
+
+      <p><b>Reference:</b> ${refNumber}</p>
+      ${
+        finalPropertyRef
+          ? `<p><b>Property:</b> ${finalPropertyRef}</p>`
+          : ""
+      }
+
+      <hr/>
+      <p><b>Your Message:</b><br/>${message}</p>
+
+      <hr/>
+      <p style="font-size:12px;color:#777;">This is an automated confirmation email.</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(adminMail);
+  } catch (err) {
+    console.error("Failed to send admin enquiry email:", err);
+  }
+
+  try {
+    await transporter.sendMail(userMail);
+  } catch (err) {
+    console.error("Failed to send user enquiry email:", err);
+  }
+};
+
 // POST /api/enquiry
-// Public route for both property enquiries and general enquiries.
 router.post("/", async (req, res) => {
   try {
     const {
@@ -25,8 +108,8 @@ router.post("/", async (req, res) => {
       phone,
       message,
       propertyTitle,
-      propertyRef,   // client may send property refNumber OR nothing
-      propertyId,    // NEW: client can send property _id
+      propertyRef,
+      propertyId,
     } = req.body;
 
     if (!name || !email || !message) {
@@ -35,16 +118,18 @@ router.post("/", async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
+    // Resolve property details
     let propertyDoc = null;
     let finalPropertyTitle = propertyTitle;
     let finalPropertyRef = propertyRef;
 
-    // If propertyId is sent, attach real property
     if (propertyId) {
       try {
-        propertyDoc = await Property.findById(propertyId).select("title refNumber");
+        propertyDoc = await Property.findById(propertyId).select(
+          "title refNumber"
+        );
       } catch (err) {
-        console.error("enquiry property lookup error:", err);
+        console.error("Property lookup error:", err);
       }
     }
 
@@ -54,10 +139,9 @@ router.post("/", async (req, res) => {
     }
 
     const isPropertyEnquiry = !!(propertyDoc || propertyTitle || propertyRef);
-
     const refNumber = genRef(isPropertyEnquiry ? "PROP" : "GEN");
 
-    // Save to DB
+    // Save enquiry
     const enquiry = await Enquiry.create({
       refNumber,
       property: propertyDoc ? propertyDoc._id : null,
@@ -71,94 +155,55 @@ router.post("/", async (req, res) => {
       message,
     });
 
-    // optional: send emails (if MAIL_USER / MAIL_PASS / ADMIN_EMAIL configured)
-    if (process.env.MAIL_USER && process.env.MAIL_PASS && process.env.ADMIN_EMAIL) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
-          },
-        });
+    // ✅ Respond immediately (FAST)
+    res.status(201).json({ success: true, refNumber });
 
-        const adminMail = {
-          from: process.env.MAIL_USER,
-          to: process.env.ADMIN_EMAIL,
-          subject: `New Enquiry - ${finalPropertyTitle || "General"}`,
-          html: `
-            <h3>New Enquiry</h3>
-            <p><b>Ref:</b> ${refNumber}</p>
-            ${
-              finalPropertyRef
-                ? `<p><b>Property Ref:</b> ${finalPropertyRef}</p>`
-                : ""
-            }
-            <p><b>Property:</b> ${finalPropertyTitle || "General"}</p>
-            <p><b>Name:</b> ${name}</p>
-            <p><b>Email:</b> ${email}</p>
-            <p><b>Phone:</b> ${phone || "N/A"}</p>
-            <p><b>Message:</b><br/>${message}</p>
-          `,
-        };
-
-        const userMail = {
-          from: process.env.MAIL_USER,
-          to: email,
-          subject: "We received your enquiry",
-          html: `
-            <h3>Hello ${name},</h3>
-            <p>Thanks for reaching out. We've recorded your enquiry with reference <b>${refNumber}</b>.</p>
-            ${
-              finalPropertyRef
-                ? `<p>We linked this to property <b>${finalPropertyRef}</b>.</p>`
-                : ""
-            }
-            <p>We'll contact you shortly.</p>
-          `,
-        };
-
-        await transporter.sendMail(adminMail);
-        await transporter.sendMail(userMail);
-      } catch (mailErr) {
-        console.error("enquiry email error:", mailErr);
-        // do not fail the request if email fails
-      }
-    }
-
-    res.json({ success: true, refNumber: enquiry.refNumber });
+    // ✅ Send emails AFTER response
+    sendEnquiryEmails({
+      name,
+      email,
+      phone,
+      message,
+      refNumber,
+      finalPropertyTitle,
+      finalPropertyRef,
+    }).catch((err) =>
+      console.error("Background email error:", err)
+    );
   } catch (err) {
-    console.error("enquiry create error:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to create enquiry" });
+    console.error("Enquiry create error:", err);
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to create enquiry" });
+    }
   }
 });
 
-// GET /api/enquiry
-// Admin list all enquiries (protected)
+// Admin list enquiries
 router.get("/", protect, requireRole("admin"), async (req, res) => {
   try {
     const enquiries = await Enquiry.find()
       .sort({ createdAt: -1 })
       .populate("property", "title refNumber _id");
+
     res.json(enquiries);
   } catch (err) {
-    console.error("enquiry list error:", err);
+    console.error("Enquiry list error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// DELETE /api/enquiry/:id
-// Admin delete
+// Admin delete enquiry
 router.delete("/:id", protect, requireRole("admin"), async (req, res) => {
   try {
     const e = await Enquiry.findById(req.params.id);
     if (!e) return res.status(404).json({ message: "Not found" });
+
     await e.deleteOne();
     res.json({ message: "Deleted" });
   } catch (err) {
-    console.error("enquiry delete error:", err);
+    console.error("Enquiry delete error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
