@@ -15,23 +15,24 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
   const total = images.length;
 
   const settings = {
-    infinite: total > 2,
-    speed: 500,
-    slidesToShow: 2,
-    slidesToScroll: 2,
-    arrows: false,
-    dots: false,
-    beforeChange: (_oldIndex, newIndex) => setCurrent(newIndex),
-    responsive: [
-      {
-        breakpoint: 1024, // below 1024px -> 1 image per slide
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
+  infinite: total > 2,
+  speed: 500,
+  slidesToShow: 2,
+  slidesToScroll: 1,   // ⭐ move ONE by ONE
+  arrows: false,
+  dots: false,
+  beforeChange: (_oldIndex, newIndex) => setCurrent(newIndex),
+  responsive: [
+    {
+      breakpoint: 1024, // below 1024px -> 1 image
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
       },
-    ],
-  };
+    },
+  ],
+};
+
 
   const displayCurrent = String(Math.min(current + 1, total)).padStart(2, "0");
   const displayTotal = String(total).padStart(2, "0");
