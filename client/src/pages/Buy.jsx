@@ -6,6 +6,8 @@ import Enquiry from "../components/Enquiry";
 import API from "../services/api";
 import CategoryGrid from "../components/CategoryGrid";
 import PageContainer from "../components/PageContainer";
+import RadialServiceSlider from "../components/RadialServiceSlider";
+
 
 const Buy = () => {
   const [allProperties, setAllProperties] = useState([]);
@@ -181,6 +183,18 @@ const Buy = () => {
           <InfoSection />
         </div>
       </PageContainer>
+
+      <PageContainer>
+  
+
+  {/* 🔥 Add this here — Radial Service section */}
+  <div className="py-12">
+    <RadialServiceSlider />
+  </div>
+
+ 
+</PageContainer>
+
 
       <div style={{ backgroundColor: "#EDEAE3" }} className="py-5">
         <PageContainer>

@@ -71,6 +71,13 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
 
   return (
     <div ref={listRef} className="mt-12">
+
+      {/* 🔥 Section Title */}
+      <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
+        Available Properties
+      </h2>
+
+      {/* Sub text: showing count */}
       <div className="mb-8 text-start text-base font-medium text-gray-700">
         Showing {startItem}-{endItem} of {properties.length} matching properties
         {totalCount > properties.length &&
