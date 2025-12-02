@@ -1,3 +1,4 @@
+// src/components/CategoryGrid.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +12,8 @@ import office from "../assets/images/office-min.jpg";
 import residential from "../assets/images/residential-min.jpg";
 import retail from "../assets/images/retail-min.jpg";
 import villa from "../assets/images/villa-min.jpg";
+
+import PageContainer from "./PageContainer";
 
 // IMPORTANT:
 // slug must match how your PropertyListPage normalizes category:
@@ -42,12 +45,13 @@ const CategoryGrid = ({ countsBySlug = {}, loading = false }) => {
 
   return (
     <section className="py-12 bg-white">
-      <div className="max-w-6xl mx-auto px-4 md:px-0">
+      <PageContainer>
         <h2 className="text-2xl md:text-3xl font-bold mb-2">
           Browse by Category
         </h2>
         <p className="text-gray-600 mb-6">
-          Quickly explore properties by type – residential, commercial, land and more.
+          Quickly explore properties by type – residential, commercial, land and
+          more.
         </p>
 
         <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
@@ -87,7 +91,7 @@ const CategoryGrid = ({ countsBySlug = {}, loading = false }) => {
             );
           })}
         </div>
-      </div>
+      </PageContainer>
     </section>
   );
 };

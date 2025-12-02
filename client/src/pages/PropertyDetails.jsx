@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import EnquiryFormPanel from "../components/EnquiryFormPanel";
 import API from "../services/api";
+import PropertyGallery from "../components/PropertyGallery";
+
 
 import Slider from "react-slick"; // for related properties on mobile
 
@@ -29,6 +31,7 @@ import {
 } from "lucide-react";
 
 import Breadcrumb from "../components/BreadCrumb";
+import PageContainer from "../components/PageContainer";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -71,7 +74,7 @@ const PropertyDetails = () => {
                 p.type === prop.type ||
                 (p.city && prop.city && p.city === prop.city)
             )
-            .slice(0, 6);
+            .slice(0, 4);
           setRelated(relatedProps);
         } catch (relErr) {
           console.error("Fetch related properties error:", relErr);
@@ -237,7 +240,7 @@ const PropertyDetails = () => {
   return (
     <div className="relative">
       {/* enough bottom padding for fixed mobile bar */}
-      <div className="max-w-7xl mx-auto px-6 pt-28 pb-28 md:pt-32 md:pb-20">
+      <PageContainer className="pt-28 pb-28 md:pt-32 md:pb-20">
         <Breadcrumb
           items={[
             { label: "Home", path: "/" },
@@ -251,96 +254,15 @@ const PropertyDetails = () => {
           ]}
         />
 
-        {/* GALLERY */}
-        {activeMainImage && (
-          <div className="mb-10 mt-4">
-            {/* Desktop / tablet */}
-            <div className="hidden md:grid grid-cols-4 gap-4">
-              <div className="md:col-span-3">
-                <img
-                  src={activeMainImage}
-                  alt={property.title}
-                  className="w-full h-72 sm:h-80 md:h-[420px] lg:h-[460px] object-cover rounded-2xl shadow-lg"
-                />
-              </div>
-
-              {desktopThumbs.length > 0 && (
-                <div className="md:col-span-1 flex flex-col gap-4 md:h-[420px] lg:h-[460px] overflow-y-hidden">
-                  {desktopThumbs.map((img, i) => {
-                    const isLast =
-                      i === desktopThumbs.length - 1 && extraDesktopCount > 0;
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setMainImage(img)}
-                        className={`relative flex-1 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
-                          mainImage === img
-                            ? "border-black"
-                            : "border-transparent"
-                        }`}
-                      >
-                        <img
-                          src={img}
-                          alt={`Property ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        {isLast && (
-                          <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
-                            <span className="text-white font-semibold text-lg">
-                              +{extraDesktopCount}
-                            </span>
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Mobile gallery */}
-            <div className="md:hidden">
-              <div>
-                <img
-                  src={activeMainImage}
-                  alt={property.title}
-                  className="w-full h-72 sm:h-80 object-cover rounded-2xl shadow-lg"
-                />
-              </div>
-
-              {images.length > 1 && (
-                <div className="flex gap-4 overflow-x-auto mt-4 pb-1">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setMainImage(img)}
-                      className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
-                        activeMainImage === img
-                          ? "border-black"
-                          : "border-transparent"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`Property ${i + 1}`}
-                        className="w-24 h-20 object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* GALLERY – Project style slider */}
+<PropertyGallery images={images} />
 
         {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-stretch">
           {/* LEFT – details card */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 self-start flex flex-col justify-between h-full">
             {/* MOBILE HEADER */}
-            <div className="flex flex-col gap-2 mb-4 md:hidden">
+            <div className="flex flex-col gap-2 mb-2 md:hidden">
               {/* Row 1: share icons right */}
               <div className="flex justify-end gap-2">
                 <button
@@ -394,7 +316,7 @@ const PropertyDetails = () => {
               </div>
 
               {/* Row 2: title */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
                 {property.title}
               </h1>
 
@@ -407,13 +329,13 @@ const PropertyDetails = () => {
               </div>
             </div>
 
-            {/* DESKTOP HEADER (unchanged) */}
-            <div className="hidden md:flex justify-between gap-4 mb-4">
+            {/* DESKTOP HEADER */}
+            <div className="hidden md:flex justify-between gap-4 mb-2">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                <h1 className="text-3xl font-bold text-gray-900 mb-1">
                   {property.title}
                 </h1>
-                <div className="flex items-center text-gray-600 mt-1">
+                <div className="flex items-center text-gray-600 mt-0.5">
                   <MapPin className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-base">
                     {property.city} - {property.zip}, {property.country}
@@ -474,7 +396,7 @@ const PropertyDetails = () => {
             </div>
 
             {/* VERIFIED + PRICE */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <span className="flex items-center gap-1 text-xs md:text-sm text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -726,7 +648,7 @@ const PropertyDetails = () => {
                     )}
                   </div>
 
-                  {/* DESKTOP LIST (unchanged) */}
+                  {/* DESKTOP LIST */}
                   <div className="hidden md:block">
                     {related.length ? (
                       <div className="space-y-3">
@@ -817,7 +739,7 @@ const PropertyDetails = () => {
             })()}
           </div>
         </div>
-      </div>
+      </PageContainer>
 
       {/* Mobile Bottom Action Bar */}
       <div className="md:hidden">

@@ -3,7 +3,10 @@ import PropertyCard from "./PropertyCard";
 
 const PropertyList = ({ properties, totalCount: totalFromParent }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const propertiesPerPage = 8; // 🔹 4 per row × 2 rows
+
+  // 🔥 Show only 6 properties per page
+  const propertiesPerPage = 6;
+
   const listRef = useRef(null);
 
   const totalCount =
@@ -11,7 +14,9 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
 
   const totalPages =
     Math.ceil(properties.length / propertiesPerPage) || 1;
+
   const startIndex = (currentPage - 1) * propertiesPerPage;
+
   const currentProperties = properties.slice(
     startIndex,
     startIndex + propertiesPerPage
@@ -48,7 +53,6 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
     }, 100);
   };
 
-  // Pagination numbers with dots
   const visiblePages = [];
   for (let i = 1; i <= totalPages; i++) {
     if (
@@ -67,29 +71,22 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
 
   return (
     <div ref={listRef} className="mt-12">
-
-      {/* 🔢 Result Summary */}
       <div className="mb-8 text-start text-base font-medium text-gray-700">
         Showing {startItem}-{endItem} of {properties.length} matching properties
         {totalCount > properties.length &&
           ` (from ${totalCount} total properties)`}
       </div>
 
-      {/* 🏘️ Property Grid — 1 / 2 / 3 / 4 columns (mobile -> desktop) */}
+      {/* Cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-8 mb-16 items-stretch">
+        {currentProperties.map((property) => (
+          <PropertyCard key={property._id || property.id} property={property} />
+        ))}
+      </div>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8 px-4 sm:px-0 mb-16 items-stretch">
-  {currentProperties.map((property) => (
-    <PropertyCard key={property._id || property.id} property={property} />
-  ))}
-</div>
-
-
-
-      {/* 📄 Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center flex-wrap gap-3 mb-6">
-
-          {/* Prev */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -102,7 +99,6 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
             Prev
           </button>
 
-          {/* Page Numbers */}
           {visiblePages.map((page, index) =>
             page === "..." ? (
               <span
@@ -126,7 +122,6 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
             )
           )}
 
-          {/* Next */}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
