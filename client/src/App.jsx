@@ -27,6 +27,7 @@ import SellerLogin from "./seller/SellerLogin";
 import SellerLayout from "./seller/SellerLayout";
 import SellerDashboard from "./seller/SellerDashboard";
 import MyProperties from "./seller/MyProperties";
+import SellerProfile from "./seller/SellerProfile";
 
 /* Shared property form (create + edit) */
 import SharedPropertyForm from "./shared/PropertyForm";
@@ -98,6 +99,7 @@ export default function AppWrapper() {
           }
         >
           <Route index element={<SellerDashboard />} />
+          <Route path="profile" element={<SellerProfile />} />
           <Route path="properties" element={<MyProperties />} />
           <Route path="properties/new" element={<SharedPropertyForm redirectTo="/seller/properties" />} />
           <Route path="properties/:id" element={<SharedPropertyForm redirectTo="/seller/properties" />} />

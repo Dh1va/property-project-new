@@ -83,10 +83,7 @@ export default function SellerRegister() {
             <input name="confirmPassword" value={form.confirmPassword} onChange={handleChange} type="password" className="w-full border p-2 rounded" required />
           </div>
 
-          {/* <div>
-            <label className="block text-xs mb-1">Company (optional)</label>
-            <input name="company" value={form.company} onChange={handleChange} className="w-full border p-2 rounded" />
-          </div> */}
+          
 
           <div>
             <label className="block text-xs mb-1">Phone</label>
