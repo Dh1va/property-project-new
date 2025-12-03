@@ -182,15 +182,9 @@ export default function EnquiryFormPanel({
       <div className="bg-white text-gray-900 rounded-2xl shadow-md p-6">
         <div className="mb-3">
           <h3 className="text-lg font-semibold">Interested in this property?</h3>
-          {propertyTitle || propertyRef ? (
-            <p className="text-sm text-gray-600 mt-1 truncate">
-              {propertyTitle} {propertyRef ? ` — ${propertyRef}` : ""}
-            </p>
-          ) : (
-            <p className="text-sm text-gray-600 mt-1">
-              Share your details — we’ll get back to you shortly.
-            </p>
-          )}
+        
+            
+          
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">

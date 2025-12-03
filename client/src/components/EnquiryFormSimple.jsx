@@ -161,37 +161,66 @@ export default function EnquiryFormSimple({
           )}
         </div>
 
-        {/* Meeting Type - Radio Buttons */}
+        {/* Meeting – Custom Radio Buttons */}
         <div>
           <label className="block text-xs font-semibold uppercase mb-3 text-gray-700">
             How would you like to conduct the meeting? *
           </label>
 
-          <div className="flex flex-col space-y-2">
-            <label className="flex items-center space-x-2 text-sm text-gray-700">
+          <div className="flex flex-col space-y-3">
+
+            {/* Option 1 */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <span
+                className={`w-5 h-5 rounded-full border flex items-center justify-center 
+                  ${
+                    formData.meeting === "physical"
+                      ? "border-black"
+                      : "border-gray-400"
+                  }
+                `}
+              >
+                {formData.meeting === "physical" && (
+                  <span className="w-3 h-3 bg-black rounded-full"></span>
+                )}
+              </span>
+
               <input
                 type="radio"
                 name="meeting"
                 value="physical"
                 checked={formData.meeting === "physical"}
                 onChange={handleChange}
-                required
-                className="w-4 h-4 text-black border-gray-400 rounded-full"
+                className="hidden"
               />
-              <span>Physically</span>
+              <span className="text-sm text-gray-700">Physically</span>
             </label>
 
-            <label className="flex items-center space-x-2 text-sm text-gray-700">
+            {/* Option 2 */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <span
+                className={`w-5 h-5 rounded-full border flex items-center justify-center 
+                  ${
+                    formData.meeting === "digital"
+                      ? "border-black"
+                      : "border-gray-400"
+                  }
+                `}
+              >
+                {formData.meeting === "digital" && (
+                  <span className="w-3 h-3 bg-black rounded-full"></span>
+                )}
+              </span>
+
               <input
                 type="radio"
                 name="meeting"
                 value="digital"
                 checked={formData.meeting === "digital"}
                 onChange={handleChange}
-                required
-                className="w-4 h-4 text-black border-gray-400 rounded-full"
+                className="hidden"
               />
-              <span>Digital</span>
+              <span className="text-sm text-gray-700">Digital</span>
             </label>
           </div>
 

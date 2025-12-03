@@ -5,6 +5,9 @@ import InfoSection from "../components/InfoSection";
 import Enquiry from "../components/Enquiry";
 import API from "../services/api";
 import CategoryGrid from "../components/CategoryGrid";
+import PageContainer from "../components/PageContainer";
+import RadialServiceSlider from "../components/RadialServiceSlider";
+
 
 const Buy = () => {
   const [allProperties, setAllProperties] = useState([]);
@@ -14,11 +17,9 @@ const Buy = () => {
   const [categoryCounts, setCategoryCounts] = useState({});
   const propertyListRef = useRef(null);
 
-  // helper to slugify type from backend
   const slugifyType = (type = "") =>
     type.toLowerCase().replace(/\s+/g, "-");
 
-  // Fetch properties from backend on mount
   useEffect(() => {
     const fetchProps = async () => {
       try {
@@ -29,7 +30,6 @@ const Buy = () => {
         setAllProperties(data);
         setFilteredProperties(data);
 
-        // build category counts here (once)
         const map = {};
         data.forEach((p) => {
           if (!p.type) return;
@@ -49,7 +49,6 @@ const Buy = () => {
   }, []);
 
   const handleFilter = (filters) => {
-    // If no filters -> reset
     if (
       !filters.city &&
       !filters.type &&
@@ -70,7 +69,6 @@ const Buy = () => {
       const price = property.totalPrice ?? property.price ?? 0;
       const size = property.squareMeters ?? property.size ?? 0;
 
-      // 🔍 City / place / pincode search
       const searchCity = (filters.city || "").toLowerCase();
       const locationString = (
         (property.city || "") +
@@ -127,7 +125,6 @@ const Buy = () => {
 
     setFilteredProperties(filtered);
 
-    // Scroll to list
     setTimeout(() => {
       propertyListRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -138,9 +135,9 @@ const Buy = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 🏠 Hero Section */}
+      {/* Hero - full width bg, inner content constrained */}
       <section
-        className="relative flex flex-col items-center justify-center text-center text-white min-h-[90vh] bg-cover bg-center px-4 pt-32 sm:pt-40 pb-16"
+        className="relative flex flex-col items-center justify-center text-center text-white min-h-[90vh] bg-cover bg-center pt-32 sm:pt-40 pb-16"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1506765515384-028b60a970df?auto=format&fit=crop&w=1600&q=80')",
@@ -148,49 +145,63 @@ const Buy = () => {
       >
         <div className="absolute inset-0 bg-black/50"></div>
 
-        <div className="relative z-10 w-full max-w-4xl space-y-6">
-          <h1 className="text-3xl sm:text-5xl font-bold">
-            Discover Your Dream Property
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-200">
-            Thoughtfully curated properties for every lifestyle.
-          </p>
+        <PageContainer>
+          <div className="relative z-10 w-full max-w-4xl space-y-6">
+            <h1 className="text-3xl sm:text-5xl font-bold">
+              Discover Your Dream Property
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-200">
+              Thoughtfully curated properties for every lifestyle.
+            </p>
 
-          {/* 🧾 Filter Form */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full text-black text-start">
-            <FilterForm onFilter={handleFilter} />
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full text-black text-start">
+              <FilterForm onFilter={handleFilter} />
+            </div>
           </div>
-        </div>
+        </PageContainer>
       </section>
 
-      {/* 🔹 Category Grid (uses counts from this page) */}
+      {/* Category grid can stay as is */}
       <CategoryGrid countsBySlug={categoryCounts} loading={loading} />
 
-      {/* 🏘️ Property List */}
-      <div
-        ref={propertyListRef}
-        className="px-4 md:px-12 lg:px-24 xl:px-32 py-12"
-      >
-        {loading ? (
-          <p>Loading properties…</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : (
-          <PropertyList
-            properties={filteredProperties}
-            totalCount={allProperties.length}
-          />
-        )}
-      </div>
+      {/* Property list + info + enquiry all inside global container */}
+      <PageContainer>
+        <div ref={propertyListRef} className="py-12">
+          {loading ? (
+            <p>Loading properties…</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : (
+            <PropertyList
+              properties={filteredProperties}
+              totalCount={allProperties.length}
+            />
+          )}
+        </div>
 
-      <div className="px-4 md:px-12 lg:px-24 xl:px-32 py-12">
-        <InfoSection />
-      </div>
+        <div className="py-12">
+          <InfoSection />
+        </div>
+      </PageContainer>
+
+      <PageContainer>
+  
+
+  {/* 🔥 Add this here — Radial Service section */}
+  <div className="py-12">
+    <RadialServiceSlider />
+  </div>
+
+ 
+</PageContainer>
+
 
       <div style={{ backgroundColor: "#EDEAE3" }} className="py-5">
-        <div className="px-4 md:px-12 lg:px-24 xl:px-32 py-12">
-          <Enquiry />
-        </div>
+        <PageContainer>
+          <div className="py-12">
+            <Enquiry />
+          </div>
+        </PageContainer>
       </div>
     </div>
   );
