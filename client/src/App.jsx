@@ -20,6 +20,8 @@ import AdminLayout from "./admin/AdminLayout";
 import AdminHome from "./admin/AdminHome";
 import ManageSellers from "./admin/ManageSellers";
 import ManageProperties from "./admin/ManageProperties";
+import AdminBlogs from "./admin/AdminBlogs";
+import BlogForm from "./admin/BlogForm";
 // import AdminEnquiries from "./admin/AdminEnquiries"; // create this when ready
 
 /* Seller area (nested) */
@@ -33,6 +35,8 @@ import SellerProfile from "./seller/SellerProfile";
 import SharedPropertyForm from "./shared/PropertyForm";
 import AdminEnquiries from "./admin/AdminEnquires";
 import SellerRegister from "./seller/SellerRegister";
+import BlogDetail from "./pages/BlogDetail";
+import AllBlogs from "./pages/AllBlogs";
 
 /* 404 */
 const NotFound = () => (
@@ -66,7 +70,9 @@ export default function AppWrapper() {
         <Route path="/buy" element={<Buy />} />
         <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/properties/:category" element={<PropertyListPage />} />
+        <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/blog" element={<AllBlogs />} />
 
         {/* Admin nested */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -84,6 +90,9 @@ export default function AppWrapper() {
           <Route path="properties/new" element={<SharedPropertyForm redirectTo="/admin/properties" />} />
           <Route path="properties/:id" element={<SharedPropertyForm redirectTo="/admin/properties" />} />
           <Route path="enquiries" element={<AdminEnquiries />} />
+          <Route path="blogs" element={<AdminBlogs />} />
+<Route path="blogs/new" element={<BlogForm mode="create" />} />
+<Route path="blogs/:id/edit" element={<BlogForm mode="edit" />} />
         </Route>
 
         {/* Seller nested */}

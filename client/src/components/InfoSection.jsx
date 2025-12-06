@@ -2,7 +2,7 @@ import React from "react";
 
 const InfoSection = () => {
   return (
-    <section className="flex flex-col md:flex-row items-start justify-between bg-gray-50  gap-10 ">
+    <section className="flex flex-col md:flex-row items-start justify-between  gap-10 ">
       {/* 🏙️ Left Image */}
       <div className="md:w-1/2 flex justify-center md:justify-start">
         <img
@@ -14,7 +14,7 @@ const InfoSection = () => {
 
       {/* 🧾 Right Content */}
       <div className="md:w-1/2 space-y-6 text-left md:text-left flex flex-col justify-start md:px-3 ">
-        <h2 className="text-3xl md:text-6xl font-bold text-gray-900 mb-10 mt-5">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
           Discover Your Perfect Home
         </h2>
         <p className="text-black text-lg mb-10">

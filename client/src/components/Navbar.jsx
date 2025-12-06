@@ -62,12 +62,13 @@ const Navbar = () => {
     >
       <PageContainer className="flex items-center justify-between py-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={Logo} alt="Logo" className="h-10 w-auto object-contain" />
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <img src={Logo} alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center justify-center flex-1 gap-8">
+        {/* FIX: Reduced gap on md/lg to fit content, restored gap-8 on xl */}
+        <div className="hidden md:flex items-center justify-center flex-1 gap-4 lg:gap-6 xl:gap-8 px-4">
           {navLinks.map((link, idx) => (
             <div
               key={idx}
@@ -77,7 +78,7 @@ const Navbar = () => {
             >
               {link.submenu ? (
                 <>
-                  <button className="flex items-center gap-1 font-bold uppercase text-gray-900 hover:text-black transition">
+                  <button className="flex items-center gap-1 font-bold uppercase text-gray-900 hover:text-black transition text-sm lg:text-base">
                     {link.name}
                     <ChevronDown className="w-4 h-4" />
                   </button>
@@ -103,7 +104,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   to={link.path}
-                  className="font-bold uppercase text-gray-900 hover:text-black transition"
+                  className="font-bold uppercase text-gray-900 hover:text-black transition text-sm lg:text-base"
                 >
                   {link.name}
                 </Link>
@@ -113,14 +114,17 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Post Property */}
-        <div className="hidden md:block">
+        <div className="hidden md:block flex-shrink-0">
           <Link
             to="/seller/login"
             onClick={() => setMobileOpen(false)}
-            className="inline-flex items-center w-full justify-center rounded-full border border-black font-semibold uppercase overflow-hidden"
+            // FIX: Removed w-full, added text-sm for tablet, reduced padding
+            className="inline-flex items-center justify-center rounded-full border border-black font-semibold uppercase overflow-hidden whitespace-nowrap"
           >
-            <span className="px-5 py-2 text-black">Post Property</span>
-            <span className="px-4 py-2 rounded-full bg-black text-white">
+            <span className="px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm xl:text-base text-black transition-colors">
+              Post Property
+            </span>
+            <span className="px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm xl:text-base bg-black text-white rounded-full">
               FREE
             </span>
           </Link>
@@ -137,7 +141,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-t shadow-inner px-6 py-4 space-y-4">
+        <div className="md:hidden bg-white border-t shadow-inner px-6 py-4 space-y-4 max-h-[80vh] overflow-y-auto">
           {navLinks.map((link, idx) => (
             <div key={idx}>
               {link.submenu ? (
@@ -159,12 +163,12 @@ const Navbar = () => {
                   </button>
 
                   {openDropdown === link.name && (
-                    <div className="mt-2 pl-3 space-y-2">
+                    <div className="mt-2 pl-3 space-y-2 border-l-2 border-gray-100 ml-1">
                       {link.submenu.map((sub, j) => (
                         <button
                           key={j}
                           onClick={() => handleNavigate(sub.name)}
-                          className="block w-full text-left text-gray-700 hover:text-black text-medium"
+                          className="block w-full text-left text-gray-600 hover:text-black text-sm py-1"
                         >
                           {sub.name}
                         </button>
@@ -187,10 +191,10 @@ const Navbar = () => {
           <Link
             to="/seller/login"
             onClick={() => setMobileOpen(false)}
-            className="inline-flex items-center rounded-full border border-black font-semibold uppercase overflow-hidden mx-auto"
+            className="inline-flex items-center justify-center w-full rounded-full border border-black font-semibold uppercase overflow-hidden mt-4"
           >
             <span className="px-5 py-2 text-black">Post Property</span>
-            <span className="px-4 py-2 bg-black text-white rounded-full">
+            <span className="px-4 py-2 bg-black text-white w-full text-center">
               FREE
             </span>
           </Link>

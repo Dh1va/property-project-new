@@ -7,6 +7,9 @@ import API from "../services/api";
 import CategoryGrid from "../components/CategoryGrid";
 import PageContainer from "../components/PageContainer";
 import RadialServiceSlider from "../components/RadialServiceSlider";
+import BlogList from "../components/BlogList";
+import TestimonialsSlider from "../components/TestimonialsSlider";
+import FAQ from "../components/FAQ";
 
 
 const Buy = () => {
@@ -179,21 +182,49 @@ const Buy = () => {
           )}
         </div>
 
-        <div className="py-12">
-          <InfoSection />
-        </div>
+     
       </PageContainer>
+
+      <div style={{ backgroundColor: "#EDEAE3" }} className="py-12">
+        <PageContainer>
+          <div className="py-12">
+            <InfoSection />
+          </div>
+        </PageContainer>
+      </div>
 
       <PageContainer>
   
 
   {/* 🔥 Add this here — Radial Service section */}
-  <div className="py-12">
+  <div className="py-12 hidden md:block">
     <RadialServiceSlider />
   </div>
 
  
 </PageContainer>
+
+<PageContainer>
+  {/* other sections */}
+  <div className="py-12">
+    <BlogList title="From our blog" limit={3} />
+  </div>
+</PageContainer>
+
+<PageContainer>
+  {/* other sections */}
+  <div className="py-12">
+    <TestimonialsSlider />
+  </div>
+</PageContainer>
+
+<PageContainer>
+  {/* other sections */}
+  <div className="py-12">
+    <FAQ />
+  </div>
+</PageContainer>
+
 
 
       <div style={{ backgroundColor: "#EDEAE3" }} className="py-5">
@@ -203,6 +234,11 @@ const Buy = () => {
           </div>
         </PageContainer>
       </div>
+     
+
+
+
+
     </div>
   );
 };

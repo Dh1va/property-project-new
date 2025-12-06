@@ -10,6 +10,7 @@ import sellerRoutes from "./routes/sellerRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -35,6 +36,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/sellers", sellerRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/blogs", blogRoutes);
 
 app.use("/api", locationRoutes);
 
