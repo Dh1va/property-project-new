@@ -75,8 +75,10 @@ const TestimonialsSlider = () => {
     dots: false,
     beforeChange: (_oldIndex, newIndex) => setCurrentSlide(newIndex),
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 640, settings: { slidesToShow: 1 } },
+      // tablet / small desktop
+      { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+      // mobile: single testimonial per slide
+      { breakpoint: 640, settings: { slidesToShow: 1, slidesToScroll: 1 } },
     ],
   };
 
@@ -116,22 +118,22 @@ const TestimonialsSlider = () => {
             Your trust is our greatest award
           </h2>
 
-         <button
-  className="
-    inline-flex items-center gap-2 
-    px-4 py-2 text-xs
-    md:px-6 md:py-2 md:text-sm
-    rounded-full border border-amber-600 text-amber-700 
-    hover:bg-amber-50 transition
-    ml-0 md:ml-6
-  "
->
-  Write a review →
-</button>
+          <button
+            className="
+              hidden md:inline-flex items-center gap-2 
+              px-4 py-2 text-xs
+              md:px-6 md:py-2 md:text-sm
+              rounded-full border border-amber-600 text-amber-700 
+              hover:bg-amber-50 transition
+              ml-0 md:ml-6 
+            "
+          >
+            Write a review →
+          </button>
         </div>
 
-        {/* SLIDER - wrapped with negative margin to align left edge with other section titles */}
-        <div className="-ml-3">
+        {/* SLIDER - negative margin only on md+ to keep mobile neat */}
+        <div className="md:-ml-3">
           <Slider ref={sliderRef} {...settings}>
             {testimonials.map((t, index) => {
               const dividerClass = shouldShowDivider(index) ? "border-r border-gray-300" : "border-r-0";

@@ -15,24 +15,32 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
   const total = images.length;
 
   const settings = {
-  infinite: total > 2,
-  speed: 500,
-  slidesToShow: 2,
-  slidesToScroll: 1,   // ⭐ move ONE by ONE
-  arrows: false,
-  dots: false,
-  beforeChange: (_oldIndex, newIndex) => setCurrent(newIndex),
-  responsive: [
-    {
-      breakpoint: 1024, // below 1024px -> 1 image
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
+    infinite: total > 2,
+    speed: 500,
+    slidesToShow: 2,     // desktop default: 2
+    slidesToScroll: 1,   // move one by one
+    arrows: false,
+    dots: false,
+    beforeChange: (_oldIndex, newIndex) => setCurrent(newIndex),
+    responsive: [
+      {
+        // tablet and small desktop keep 2
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
       },
-    },
-  ],
-};
-
+      {
+        // mobile: single image per slide
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
 
   const displayCurrent = String(Math.min(current + 1, total)).padStart(2, "0");
   const displayTotal = String(total).padStart(2, "0");
@@ -49,9 +57,7 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
   return (
     <section className="mt-6 mb-10">
       {/* Heading */}
-      <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-        {title}
-      </h2>
+      <h2 className="text-2xl md:text-3xl font-semibold mb-4">{title}</h2>
 
       {/* Slider */}
       <div className="relative">
@@ -94,7 +100,6 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
             onClick={goPrev}
             className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-400 hover:bg-black hover:text-white transition disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-inherit"
           >
-            {/* left arrow */}
             <span className="text-lg leading-none">&#8592;</span>
           </button>
           <button
@@ -102,7 +107,6 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
             onClick={goNext}
             className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-400 hover:bg-black hover:text-white transition disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-inherit"
           >
-            {/* right arrow */}
             <span className="text-lg leading-none">&#8594;</span>
           </button>
         </div>
