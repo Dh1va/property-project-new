@@ -118,7 +118,7 @@ const FAQ = () => {
 
   return (
     <section className="mt-12 mb-12">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto">
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
 
