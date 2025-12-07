@@ -120,13 +120,14 @@ const TestimonialsSlider = () => {
 
           <button
             className="
-              hidden md:inline-flex items-center gap-2 
+              inline-flex items-center gap-2 
               px-4 py-2 text-xs
               md:px-6 md:py-2 md:text-sm
               rounded-full border border-amber-600 text-amber-700 
               hover:bg-amber-50 transition
-              ml-0 md:ml-6 
+              ml-0 md:ml-6
             "
+            aria-label="Write a review"
           >
             Write a review →
           </button>
@@ -139,16 +140,18 @@ const TestimonialsSlider = () => {
               const dividerClass = shouldShowDivider(index) ? "border-r border-gray-300" : "border-r-0";
 
               return (
-                <div key={t.id} className={`px-3 ${dividerClass}`}>
+                <div key={t.id} className={`px-3 w-full ${dividerClass}`}>
                   <div className="flex flex-col h-full min-h-[350px] p-6 md:p-8">
-                    {/* Header with stars on right */}
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="text-xl font-semibold text-gray-900">{t.name}</div>
+                    {/* Header: NAME+SUBTITLE left, STARS right (kept on same row) */}
+                    <div className="flex items-start justify-between w-full">
+                      {/* Left: Name + subtitle */}
+                      <div className="flex-1 pr-4">
+                        <div className="text-xl font-semibold text-gray-900 leading-tight">{t.name}</div>
                         <div className="text-lg text-gray-500">{t.subtitle}</div>
                       </div>
 
-                      <div className="flex items-center gap-1 ml-4">
+                      {/* Right: Stars (prevent shrinking/wrapping) */}
+                      <div className="flex items-center gap-1 flex-shrink-0 ml-4">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
@@ -159,11 +162,11 @@ const TestimonialsSlider = () => {
                     </div>
 
                     {/* Quote */}
-                    <p className="text-[16px] text-gray-700 leading-relaxed flex-1 mt-5">
+                    <p className="text-[16px] text-gray-700 leading-relaxed flex-1 mt-4">
                       {t.quote}
                     </p>
 
-                    {/* Date aligned perfectly at bottom */}
+                    {/* Date aligned at bottom */}
                     <div className="mt-auto text-base text-gray-500 pt-4">{t.date}</div>
                   </div>
                 </div>
