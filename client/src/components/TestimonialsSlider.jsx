@@ -184,7 +184,7 @@ const TestimonialsSlider = () => {
 
           <button
             className="
-              inline-flex items-center gap-2 
+              hidden md:inline-flex items-center gap-2 
               px-3 py-1.5 text-[11px]
               md:px-6 md:py-2 md:text-sm
               rounded-full border border-amber-600 text-amber-700 
