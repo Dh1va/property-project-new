@@ -2,6 +2,40 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
+// Component for rendering a single testimonial card
+const TestimonialCard = ({ t, dividerClass }) => (
+  <div key={t.id} className={`px-3 w-full ${dividerClass}`}>
+    <div className="flex flex-col h-full min-h-[350px] p-6 md:p-8">
+      {/* Header: FIXED to stack on mobile (flex-col) and row on desktop (md:flex-row) */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full">
+        {/* Left: Name + subtitle (removed mobile flex-1 and padding) */}
+        <div className="md:flex-1 md:pr-4">
+          <div className="text-xl font-semibold text-gray-900 leading-tight">{t.name}</div>
+          <div className="text-lg text-gray-500">{t.subtitle}</div>
+        </div>
+
+        {/* Right: Stars (added top margin on mobile) */}
+        <div className="flex items-center gap-1 flex-shrink-0 mt-2 md:mt-0 md:ml-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star
+              key={i}
+              className={`w-5 h-5 ${i < t.rating ? "text-amber-500" : "text-gray-200"}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Quote */}
+      <p className="text-[16px] text-gray-700 leading-relaxed flex-1 mt-4">
+        {t.quote}
+      </p>
+
+      {/* Date aligned at bottom */}
+      <div className="mt-auto text-base text-gray-500 pt-4">{t.date}</div>
+    </div>
+  </div>
+);
+
 const TestimonialsSlider = () => {
   const testimonials = [
     {
@@ -61,11 +95,15 @@ const TestimonialsSlider = () => {
   ];
 
   const sliderRef = useRef(null);
+  const sliderMobileRef = useRef(null); // New ref for mobile slider
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShowState, setSlidesToShowState] = useState(3);
   const total = testimonials.length;
 
-  const settings = {
+  // --- Slider Settings ---
+
+  // Settings for desktop/tablet (slidesToShow: 2 or 3)
+  const desktopSettings = {
     slidesToShow: 3,
     slidesToScroll: 1,
     infinite: total > 3,
@@ -74,16 +112,27 @@ const TestimonialsSlider = () => {
     dots: false,
     beforeChange: (_oldIndex, newIndex) => setCurrentSlide(newIndex),
     responsive: [
-      // Mobile (up to 768px): single testimonial per slide
-      { breakpoint: 768, settings: { slidesToShow: 1, slidesToScroll: 1 } },
-      // tablet / small desktop (up to 1024px)
+      // tablet / small desktop (md breakpoint)
       { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
     ],
   };
 
+  // Settings for mobile (slidesToShow: 1)
+  const mobileSettings = {
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    infinite: total > 1,
+    speed: 600,
+    arrows: false,
+    dots: false,
+    beforeChange: (_oldIndex, newIndex) => setCurrentSlide(newIndex), // Use same currentSlide state
+  };
+
+  // --- Responsive Logic (now only for progress bar calculation) ---
+
   const updateSlidesToShow = useCallback(() => {
     const w = window.innerWidth;
-    // Adjusted breakpoints to match react-slick settings
+    // Keep the state logic for the progress bar calculation
     if (w < 768) setSlidesToShowState(1);
     else if (w < 1024) setSlidesToShowState(2);
     else setSlidesToShowState(3);
@@ -95,13 +144,29 @@ const TestimonialsSlider = () => {
     return () => window.removeEventListener("resize", updateSlidesToShow);
   }, [updateSlidesToShow]);
 
+  // --- Navigation and Progress Bar Logic ---
+
   const displayCurrent = String(currentSlide + 1).padStart(2, "0");
   const displayTotal = String(total).padStart(2, "0");
   const progressPercent = Math.min(100, Math.max(0, ((currentSlide + 1) / total) * 100));
 
-  const prev = () => sliderRef.current?.slickPrev();
-  const next = () => sliderRef.current?.slickNext();
+  // Determine which slider to control based on window size (or use the current one)
+  const prev = () => {
+    if (window.innerWidth < 768) {
+      sliderMobileRef.current?.slickPrev();
+    } else {
+      sliderRef.current?.slickPrev();
+    }
+  };
+  const next = () => {
+    if (window.innerWidth < 768) {
+      sliderMobileRef.current?.slickNext();
+    } else {
+      sliderRef.current?.slickNext();
+    }
+  };
 
+  // Logic for displaying the divider line between cards (only used on desktop)
   const shouldShowDivider = (index) => {
     const positionInWindow = ((index - currentSlide) % total + total) % total;
     const isVisible = positionInWindow < slidesToShowState;
@@ -133,60 +198,43 @@ const TestimonialsSlider = () => {
           </button>
         </div>
 
-        {/* SLIDER - negative margin only on md+ to keep mobile neat */}
-        <div className="md:-ml-3">
-          <Slider ref={sliderRef} {...settings}>
+        {/* 1. MOBILE-ONLY SLIDER (Single View) */}
+        {/* We use md:hidden to hide this on tablet/desktop */}
+        <div className="md:-ml-3 md:hidden">
+          <Slider ref={sliderMobileRef} {...mobileSettings}>
+            {testimonials.map((t, index) => (
+              // Note: dividerClass is not needed since there's only 1 slide
+              <TestimonialCard key={t.id} t={t} dividerClass="" />
+            ))}
+          </Slider>
+        </div>
+
+
+        {/* 2. DESKTOP/TABLET SLIDER (Multi-View) */}
+        {/* We use hidden md:block to hide this on mobile */}
+        <div className="md:-ml-3 hidden md:block">
+          <Slider ref={sliderRef} {...desktopSettings}>
             {testimonials.map((t, index) => {
               const dividerClass = shouldShowDivider(index) ? "border-r border-gray-300" : "border-r-0";
-
-              return (
-                <div key={t.id} className={`px-3 w-full ${dividerClass}`}>
-                  <div className="flex flex-col h-full min-h-[350px] p-6 md:p-8">
-                    {/* Header: FIXED to stack on mobile (flex-col) and row on desktop (md:flex-row) */}
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full">
-                      
-                      {/* Left: Name + subtitle (removed mobile flex-1 and padding) */}
-                      <div className="md:flex-1 md:pr-4">
-                        <div className="text-xl font-semibold text-gray-900 leading-tight">{t.name}</div>
-                        <div className="text-lg text-gray-500">{t.subtitle}</div>
-                      </div>
-
-                      {/* Right: Stars (added top margin on mobile) */}
-                      <div className="flex items-center gap-1 flex-shrink-0 mt-2 md:mt-0 md:ml-4">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-5 h-5 ${i < t.rating ? "text-amber-500" : "text-gray-200"}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Quote */}
-                    <p className="text-[16px] text-gray-700 leading-relaxed flex-1 mt-4">
-                      {t.quote}
-                    </p>
-
-                    {/* Date aligned at bottom */}
-                    <div className="mt-auto text-base text-gray-500 pt-4">{t.date}</div>
-                  </div>
-                </div>
-              );
+              return <TestimonialCard key={t.id} t={t} dividerClass={dividerClass} />;
             })}
           </Slider>
         </div>
 
+
         {/* BOTTOM CONTROLS */}
+        {/* The controls remain visible for both, using the same state logic */}
         <div className="mt-2.5 flex items-center gap-6 w-full">
-          {/* Left counter */}
-          <div className="text-2xl font-light text-gray-900 shrink-0 flex items-center">
+          {/* Left counter - Now only displays on Mobile/Tablet since you requested to hide it on Mobile */}
+          {/* I'll hide it below 768px for a cleaner mobile look */}
+          <div className="text-2xl font-light text-gray-900 shrink-0 flex items-center hidden md:flex">
             <span className="font-semibold">{displayCurrent}</span>
             <span className="mx-2 text-gray-400">/</span>
             <span className="text-gray-500">{displayTotal}</span>
           </div>
 
-          {/* Long progress line */}
-          <div className="flex-1">
+          {/* Progress bar - Hidden on mobile for cleaner look */}
+          <div className="flex-1 hidden md:block">
             <div className="h-[1px] bg-gray-200 w-full">
               <div
                 className="h-[1px] bg-gray-900 transition-all"
@@ -195,8 +243,8 @@ const TestimonialsSlider = () => {
             </div>
           </div>
 
-          {/* Right arrows */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Right arrows - Always visible for both sliders */}
+          <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-0">
             <button
               onClick={prev}
               className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-900 hover:text-white transition"
