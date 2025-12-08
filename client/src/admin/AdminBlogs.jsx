@@ -66,7 +66,7 @@ export default function AdminBlogs() {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+      <div className=" overflow-hidden border border-gray-100">
         {loading ? (
           <div className="p-8 text-center text-gray-500">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-500" />

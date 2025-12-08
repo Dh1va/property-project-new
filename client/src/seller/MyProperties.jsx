@@ -1,5 +1,5 @@
 // src/seller/MyProperties.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -42,15 +42,28 @@ export default function MyProperties() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchDebounceRef = useRef(null);
+  const searchAbortRef = useRef(null);
+
   // delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmText, setConfirmText] = useState("");
   const [busyDelete, setBusyDelete] = useState(false);
 
-  const fetchProps = async () => {
+  const fetchProps = async (opts = { serverSearch: null }) => {
     setLoading(true);
     try {
-      const res = await API.get("/sellers/me/properties");
+      // cancel any pending search request
+      if (searchAbortRef.current) {
+        try { searchAbortRef.current.abort(); } catch (e) {}
+        searchAbortRef.current = null;
+      }
+
+      const qp = opts.serverSearch ? `?search=${encodeURIComponent(opts.serverSearch)}` : "";
+      const res = await API.get(`/sellers/me/properties${qp}`);
       setProperties(res.data || []);
     } catch (err) {
       console.error("Failed to fetch seller properties", err);
@@ -64,6 +77,59 @@ export default function MyProperties() {
     fetchProps();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // client-side filtered list for instant UI response
+  const filteredProperties = useMemo(() => {
+    if (!searchQuery) return properties;
+    const q = searchQuery.trim().toLowerCase();
+    return properties.filter((p) => {
+      return (
+        (p.title && p.title.toLowerCase().includes(q)) ||
+        (p.city && p.city.toLowerCase().includes(q)) ||
+        (p.refNumber && String(p.refNumber).toLowerCase().includes(q)) ||
+        (p._id && String(p._id).toLowerCase().includes(q)) ||
+        (p.place && p.place.toLowerCase().includes(q))
+      );
+    });
+  }, [properties, searchQuery]);
+
+  // debounced server-side search for queries >= 3 chars
+  useEffect(() => {
+    // clear previous debounce
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
+
+    const q = (searchQuery || "").trim();
+    if (!q || q.length < 3) {
+      // if cleared, reload base list to ensure up-to-date (optional)
+      if (!q) fetchProps();
+      setSearchLoading(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    searchDebounceRef.current = setTimeout(async () => {
+      try {
+        const ac = new AbortController();
+        searchAbortRef.current = ac;
+        const res = await API.get(`/sellers/me/properties?search=${encodeURIComponent(q)}`, { signal: ac.signal });
+        setProperties(res.data || []);
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+        console.error("server search error", err);
+      } finally {
+        setSearchLoading(false);
+        searchAbortRef.current = null;
+      }
+    }, 350); // debounce 350ms
+
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
   const openDeleteModal = (prop) => {
     setDeleteTarget(prop);
@@ -111,29 +177,67 @@ export default function MyProperties() {
       {/* Header – responsive like admin */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-xl font-semibold">My Properties</h2>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={fetchProps}
-            className="px-4 py-2 border rounded bg-white text-sm hover:bg-gray-100"
-          >
-            Refresh
-          </button>
-          <button
-            onClick={() => navigate("/seller/properties/new")}
-            className="px-4 py-2 bg-black text-white rounded text-sm"
-          >
-            Add Property
-          </button>
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+          {/* SEARCH BAR */}
+          <div className="flex items-center w-full sm:w-[420px] bg-white border rounded overflow-hidden">
+            <input
+              type="text"
+              aria-label="Search properties"
+              placeholder="Search by title, city, ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 text-sm outline-none"
+            />
+            <div className="flex items-center px-2">
+              {searchLoading ? (
+                <svg className="w-5 h-5 animate-spin text-gray-500" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeOpacity="0.2" />
+                  <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+              ) : searchQuery ? (
+                <button
+                  aria-label="Clear search"
+                  onClick={() => setSearchQuery("")}
+                  className="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              ) : (
+                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
+                  <circle cx="11" cy="11" r="6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 ml-0 sm:ml-3">
+            <button
+              onClick={() => fetchProps({ serverSearch: "" })}
+              className="px-4 py-2 border rounded bg-white text-sm hover:bg-gray-100"
+            >
+              Refresh
+            </button>
+            <button
+              onClick={() => navigate("/seller/properties/new")}
+              className="px-4 py-2 bg-black text-white rounded text-sm"
+            >
+              Add Property
+            </button>
+          </div>
         </div>
       </div>
 
-      {properties.length === 0 ? (
+      {filteredProperties.length === 0 ? (
         <div className="text-gray-500">
-          You have no properties yet.
+          {searchQuery ? "No properties match your search." : "You have no properties yet."}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((p) => {
+          {filteredProperties.map((p) => {
             const id = p._id || p.id;
             const img = p.images?.[0] || "";
             const price = p.totalPrice ?? p.price ?? null;

@@ -177,12 +177,12 @@ const TestimonialsSlider = () => {
       <div className="max-w-7xl mx-auto ">
 
         {/* TOP SECTION */}
-        <div className="flex items-start justify-between mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+        <div className=" mb-20">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight text-center">
             Your trust is our greatest award
           </h2>
 
-          <button
+          {/* <button
             className="
               hidden md:inline-flex items-center gap-2 
               px-3 py-1.5 text-[11px]
@@ -193,7 +193,7 @@ const TestimonialsSlider = () => {
             "
           >
             Write a review →
-          </button>
+          </button> */}
         </div>
 
         {/* MOBILE SLIDER */}
@@ -206,7 +206,7 @@ const TestimonialsSlider = () => {
         </div>
 
         {/* DESKTOP SLIDER */}
-        <div className="hidden md:block md:-ml-3">
+        <div className="hidden md:block md:-ml-3 ">
           <Slider ref={sliderRef} {...desktopSettings}>
             {testimonials.map((t, index) => (
               <TestimonialCard

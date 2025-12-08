@@ -3,6 +3,8 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import API from "../services/api";
 
 const amenitiesList = [
+  "2BHK",
+  "3BHK",
    "Garden",
   "Pool",
   "Balcony",

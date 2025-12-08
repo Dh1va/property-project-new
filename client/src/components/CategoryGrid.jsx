@@ -46,10 +46,10 @@ const CategoryGrid = ({ countsBySlug = {}, loading = false }) => {
   return (
     <section className="py-12 bg-white">
       <PageContainer>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">
+        <h2 className="text-2xl md:text-4xl font-bold mb-2 text-center">
           Browse by Category
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 mb-10 text-center">
           Quickly explore properties by type – residential, commercial, land and
           more.
         </p>

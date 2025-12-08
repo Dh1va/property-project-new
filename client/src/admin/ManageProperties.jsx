@@ -55,7 +55,7 @@ export default function ManageProperties() {
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
+  const pageSize = 6;
 
   /* ---------- fetch properties (combine pending + active) ---------- */
   const fetchProps = async () => {

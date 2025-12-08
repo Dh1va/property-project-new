@@ -149,19 +149,28 @@ const Buy = () => {
         <div className="absolute inset-0 bg-black/50"></div>
 
         <PageContainer>
-          <div className="relative z-10 w-full max-w-4xl space-y-6">
-            <h1 className="text-3xl sm:text-5xl font-bold">
-              Discover Your Dream Property
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-200">
-              Thoughtfully curated properties for every lifestyle.
-            </p>
+  <div className="relative z-10 w-full flex justify-center">
+    <div className="w-full max-w-4xl space-y-6 text-center">
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full text-black text-start">
-              <FilterForm onFilter={handleFilter} />
-            </div>
-          </div>
-        </PageContainer>
+      <h1 className="text-3xl sm:text-5xl font-bold">
+        Discover Your Dream Property
+      </h1>
+
+      <p className="text-lg sm:text-xl text-gray-200">
+        Thoughtfully curated properties for every lifestyle.
+      </p>
+
+      {/* Centered Filter Form */}
+      <div className="flex justify-center w-full">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full max-w-3xl text-black">
+          <FilterForm onFilter={handleFilter} />
+        </div>
+      </div>
+
+    </div>
+  </div>
+</PageContainer>
+
       </section>
 
       {/* Category grid can stay as is */}
@@ -197,9 +206,9 @@ const Buy = () => {
   
 
   {/* 🔥 Add this here — Radial Service section */}
-  <div className="py-12 hidden md:block">
+  {/* <div className="py-12 hidden md:block">
     <RadialServiceSlider />
-  </div>
+  </div> */}
 
  
 </PageContainer>
@@ -227,13 +236,13 @@ const Buy = () => {
 
 
 
-      <div style={{ backgroundColor: "#EDEAE3" }} className="py-5">
+      {/* <div style={{ backgroundColor: "#EDEAE3" }} className="py-5">
         <PageContainer>
           <div className="py-12">
             <Enquiry />
           </div>
         </PageContainer>
-      </div>
+      </div> */}
      
 
 

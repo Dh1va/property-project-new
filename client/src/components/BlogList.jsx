@@ -50,23 +50,26 @@ const BlogList = ({ title = "Latest Insights", limit = 6 }) => {
 
   return (
     <section className="mt-12 mb-12">
-      <div className="flex items-end justify-between mb-8">
-        <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
-            {title}
-          </h2>
-          <p className="mt-2 text-gray-500">Market trends, real estate tips, and news.</p>
-        </div>
-        
-        <Link 
-          to="/blog" 
-          className="hidden md:flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-600 transition group"
-        >
-          View All Posts 
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </Link>
-      </div>
+       <div className="flex flex-col items-center text-center mb-8">
+    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+      {title}
+    </h2>
+    <p className="mt-2 text-gray-500 text-base">
+      Market trends, real estate tips, and news.
+    </p>
+  </div>
 
+  {/* If you still want the View All Posts button on desktop aligned right,
+      move it outside the centered container */}
+  <div className="hidden md:flex justify-end mb-6">
+    <Link 
+      to="/blog" 
+      className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-600 transition group"
+    >
+      View All Posts 
+      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+    </Link>
+  </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogs.map((b) => (
           <Link 

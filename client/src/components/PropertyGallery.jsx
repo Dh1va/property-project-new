@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Slider from "react-slick";
 
 /**
@@ -14,26 +14,47 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
 
   const total = images.length;
 
+  // compute slidesToShow based on actual window width and keep it responsive
+  const getInitialSlides = () => {
+    if (typeof window === "undefined") return 2;
+    return window.innerWidth <= 768 ? 1 : 2;
+  };
+
+  const [slidesToShow, setSlidesToShow] = useState(getInitialSlides);
+
+  useEffect(() => {
+    const onResize = () => {
+      const next = window.innerWidth <= 768 ? 1 : 2;
+      setSlidesToShow(next);
+    };
+
+    // update on mount in case of mismatch
+    onResize();
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const settings = {
-    infinite: total > 2,
+    infinite: total > slidesToShow,
     speed: 500,
-    slidesToShow: 2,     // desktop default: 2
-    slidesToScroll: 1,   // move one by one
+    slidesToShow,
+    slidesToScroll: 1,
     arrows: false,
     dots: false,
     beforeChange: (_oldIndex, newIndex) => setCurrent(newIndex),
+    // keep a fallback responsive rule for other breakpoints if you want
     responsive: [
       {
-        // tablet and small desktop keep 2
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(2, slidesToShow), // safe fallback
           slidesToScroll: 1,
         },
       },
+      // you can keep the 768 breakpoint but our runtime slidesToShow already enforces it
       {
-        // mobile: single image per slide
-        breakpoint: 640,
+        breakpoint: 768,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,

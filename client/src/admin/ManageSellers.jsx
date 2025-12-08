@@ -1,5 +1,5 @@
 // src/admin/ManageSellers.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 
@@ -55,6 +55,12 @@ export default function ManageSellers() {
   const [loading, setLoading] = useState(true);
   const [showDeleted, setShowDeleted] = useState(false);
 
+  // search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchDebounceRef = useRef(null);
+  const searchAbortRef = useRef(null);
+
   // create/edit UI state
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -87,13 +93,20 @@ export default function ManageSellers() {
   const [activeSellerForProps, setActiveSellerForProps] = useState(null);
   const [propsBusyIds, setPropsBusyIds] = useState([]);
 
-  // fetch sellers based on tab
-  const fetchSellers = async () => {
+  // fetch sellers based on tab (optionally using server-side search)
+  const fetchSellers = async (opts = { serverSearch: null }) => {
     setLoading(true);
     try {
+      // cancel pending search requests if any
+      if (searchAbortRef.current) {
+        try { searchAbortRef.current.abort(); } catch (e) {}
+        searchAbortRef.current = null;
+      }
+
       const url = showDeleted ? "/admin/sellers/deleted" : "/admin/sellers";
-      const res = await API.get(url);
-      setSellers(res.data);
+      const queryParam = opts.serverSearch ? `?search=${encodeURIComponent(opts.serverSearch)}` : "";
+      const res = await API.get(url + queryParam);
+      setSellers(res.data || []);
     } catch (err) {
       console.error("fetch sellers", err);
       alert("Failed to fetch sellers");
@@ -103,8 +116,70 @@ export default function ManageSellers() {
   };
 
   useEffect(() => {
+    // initial load
     fetchSellers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDeleted]);
+
+  // ---------- SEARCH behavior ----------
+  // client-side filtered list for instant UI response
+  const filteredSellers = useMemo(() => {
+    if (!searchQuery) return sellers;
+    const q = searchQuery.trim().toLowerCase();
+    return sellers.filter((s) => {
+      return (
+        (s.name && s.name.toLowerCase().includes(q)) ||
+        (s.email && s.email.toLowerCase().includes(q)) ||
+        (s.phone && String(s.phone).toLowerCase().includes(q)) ||
+        (s.company && s.company.toLowerCase().includes(q)) ||
+        (s.city && s.city.toLowerCase().includes(q))
+      );
+    });
+  }, [sellers, searchQuery]);
+
+  // debounced server-side search for queries >= 3 chars
+  useEffect(() => {
+    // clear any previous debounce timer
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
+
+    // if query is short, don't call server - just use client filter
+    const q = (searchQuery || "").trim();
+    if (!q || q.length < 3) {
+      // if searchQuery is empty, refresh base list to ensure up-to-date (optional)
+      if (!q) fetchSellers();
+      setSearchLoading(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    searchDebounceRef.current = setTimeout(async () => {
+      try {
+        // create abort controller for this request (if underlying API supports it)
+        const ac = new AbortController();
+        searchAbortRef.current = ac;
+
+        // call server search endpoint - your backend should support `?search=...` (if not, this will back off gracefully)
+        const url = showDeleted ? "/admin/sellers/deleted" : "/admin/sellers";
+        const res = await API.get(`${url}?search=${encodeURIComponent(q)}`, { signal: ac.signal });
+        setSellers(res.data || []);
+      } catch (err) {
+        // if aborted, ignore
+        if (err?.name === "AbortError") return;
+        console.error("server search error", err);
+      } finally {
+        setSearchLoading(false);
+        searchAbortRef.current = null;
+      }
+    }, 400); // 400ms debounce
+
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, showDeleted]);
 
   /* ---------- Toggle active/inactive ---------- */
   const toggle = async (id, activate) => {
@@ -382,27 +457,64 @@ export default function ManageSellers() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 md:gap-3">
-          <button
-            onClick={() => {
-              setShowCreate((s) => !s);
-              setCreateErr("");
-            }}
-            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-900 transition text-sm md:text-base"
-          >
-            {showCreate ? "Cancel" : "Create Seller"}
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+          {/* SEARCH BAR */}
+          <div className="flex items-center w-full sm:w-[360px] bg-white border rounded overflow-hidden">
+            <input
+              type="search"
+              aria-label="Search sellers"
+              placeholder="Search sellers by name, email, phone, company..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 text-sm outline-none"
+            />
+            <div className="flex items-center px-2">
+              {searchLoading ? (
+                <svg className="w-5 h-5 animate-spin text-gray-500" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeOpacity="0.2" />
+                  <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+              ) : searchQuery ? (
+                <button
+                  aria-label="Clear search"
+                  onClick={() => setSearchQuery("")}
+                  className="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              ) : (
+                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
+                  <circle cx="11" cy="11" r="6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+          </div>
 
-          <button
-            onClick={() => setShowDeleted((s) => !s)}
-            className="px-3 py-2 border rounded text-sm hover:bg-gray-50"
-          >
-            {showDeleted ? "Show Active" : "Show Deleted"}
-          </button>
+          <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 md:gap-3">
+            <button
+              onClick={() => {
+                setShowCreate((s) => !s);
+                setCreateErr("");
+              }}
+              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-900 transition text-sm md:text-base"
+            >
+              {showCreate ? "Cancel" : "Create Seller"}
+            </button>
 
-          <button onClick={fetchSellers} className="px-3 py-2 border rounded text-sm hover:bg-gray-50">
-            Refresh
-          </button>
+            <button
+              onClick={() => setShowDeleted((s) => !s)}
+              className="px-3 py-2 border rounded text-sm hover:bg-gray-50"
+            >
+              {showDeleted ? "Show Active" : "Show Deleted"}
+            </button>
+
+            <button onClick={() => fetchSellers({ serverSearch: "" })} className="px-3 py-2 border rounded text-sm hover:bg-gray-50">
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
 
@@ -497,10 +609,10 @@ export default function ManageSellers() {
       <div className="space-y-4">
         {loading ? (
           <div className="text-gray-500">Loading sellers…</div>
-        ) : sellers.length === 0 ? (
-          <div className="text-gray-500">{showDeleted ? "No deleted sellers." : "No sellers yet."}</div>
+        ) : filteredSellers.length === 0 ? (
+          <div className="text-gray-500">{showDeleted ? "No deleted sellers." : "No sellers match your search."}</div>
         ) : (
-          sellers.map((s) => (
+          filteredSellers.map((s) => (
             <div key={s._id} className="p-4 bg-white rounded-lg shadow flex flex-col sm:flex-row gap-4">
               <div className="flex-shrink-0">
                 <Avatar name={s.name} />
@@ -565,9 +677,7 @@ export default function ManageSellers() {
                   {!showDeleted && (
                     <button
                       onClick={() => toggle(s._id, !s.isActive)}
-                      className={`text-sm px-3 py-1 rounded ${
-                        s.isActive ? "border" : "bg-blue-600 text-white"
-                      }`}
+                      className={`text-sm px-3 py-1 rounded ${s.isActive ? "border" : "bg-blue-600 text-white"}`}
                     >
                       {s.isActive ? "Deactivate" : "Activate"}
                     </button>
@@ -859,9 +969,7 @@ export default function ManageSellers() {
             <button
               disabled={busyDelete}
               onClick={confirmDelete}
-              className={`px-4 py-2 rounded ${
-                deletePending.mode === "hard" ? "bg-red-600 text-white" : "bg-yellow-600 text-white"
-              }`}
+              className={`px-4 py-2 rounded ${deletePending.mode === "hard" ? "bg-red-600 text-white" : "bg-yellow-600 text-white"}`}
             >
               {busyDelete ? "Deleting..." : deletePending.mode === "hard" ? "Hard Delete" : "Delete"}
             </button>

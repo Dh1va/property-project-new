@@ -15,15 +15,8 @@ import {
   FaRedo,
 } from "react-icons/fa";
 
-/**
- * Admin Dashboard — StatCard order changed per request:
- *  - Title (top, NOT truncated)
- *  - Count + Icon (below title)
- *  - Subtext (below)
- *  - Link (bottom)
- */
+/* ... currency helper and StatCard unchanged ... */
 
-// Currency helper
 const formatCurrency = (amount) => {
   if (typeof amount !== "number") return "-";
   return new Intl.NumberFormat("en-US", {
@@ -33,7 +26,6 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-// StatCard: title -> (value + icon) -> subText -> link
 function StatCard({ title, value, icon: Icon, colorClass = "bg-blue-500", subText, linkTo }) {
   return (
     <div
@@ -41,12 +33,10 @@ function StatCard({ title, value, icon: Icon, colorClass = "bg-blue-500", subTex
       role="region"
       aria-label={title}
     >
-      {/* Title (top) */}
       <div className="text-sm font-semibold leading-snug">
         {title}
       </div>
 
-      {/* value + icon row */}
       <div className="mt-3 flex items-center justify-between">
         <div className="text-3xl md:text-4xl font-extrabold leading-none">
           {value ?? "0"}
@@ -58,10 +48,8 @@ function StatCard({ title, value, icon: Icon, colorClass = "bg-blue-500", subTex
         )}
       </div>
 
-      {/* subtext */}
       {subText && <div className="mt-3 text-xs opacity-90">{subText}</div>}
 
-      {/* link (bottom) */}
       {linkTo ? (
         <div className="mt-3">
           <Link
@@ -92,7 +80,7 @@ export default function AdminDashboard() {
   const [recentSellers, setRecentSellers] = useState([]);
   const [busyIds, setBusyIds] = useState(new Set());
 
-  // load dashboard data
+  // fetchDashboard and other logic unchanged...
   const fetchDashboard = async () => {
     setLoading(true);
     try {
@@ -162,7 +150,6 @@ export default function AdminDashboard() {
     });
   };
 
-  // approve single
   const approve = async (id) => {
     if (!confirm("Approve this property?")) return;
     markBusy(id, true);
@@ -177,7 +164,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // reject single
   const reject = async (id) => {
     const reason = prompt("Reject reason (shown to seller):", "Incomplete details");
     if (reason === null) return;
@@ -194,7 +180,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // bulk approve all pending (with confirmation)
   const bulkApproveAll = async () => {
     if (!confirm("Approve ALL pending properties shown on this dashboard? This will publish them immediately.")) return;
     try {
@@ -221,7 +206,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
-      {/* Top stat cards */}
+      {/* Top stat cards (unchanged) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         <StatCard
           title="Total Properties"
@@ -303,16 +288,17 @@ export default function AdminDashboard() {
         </Link>
       </div>
 
-      {/* Main content: Pending (left), Recent (right) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT: Pending approvals */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+            <div className="flex items-center justify-between mb-4 pb-2">
               <h3 className="text-xl font-bold text-gray-800">Properties Awaiting Approval</h3>
-              <span className="text-md font-semibold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">
-                {stats.pending} pending
-              </span>
+              <span
+  className="inline-flex items-center gap-2 text-sm sm:text-md font-semibold text-yellow-600 bg-yellow-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full"
+  aria-live="polite"
+>
+  {stats.pending} pending
+</span>
             </div>
 
             {pending.length === 0 ? (
@@ -329,9 +315,7 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={id}
-                      className={`border rounded-xl p-4 flex flex-col md:flex-row items-start gap-4 transition duration-200 ${
-                        isBusy ? "opacity-60 bg-gray-50" : "bg-white hover:shadow-md"
-                      }`}
+                      className={`border rounded-xl p-4 flex flex-col md:flex-row items-start gap-4 transition duration-200 ${isBusy ? "opacity-60 bg-gray-50" : "bg-white hover:shadow-md"}`}
                     >
                       {/* Image Thumbnail */}
                       <div className="w-full md:w-28 h-20 bg-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden rounded-lg">
@@ -361,11 +345,12 @@ export default function AdminDashboard() {
                       </div>
 
                       {/* Actions/Status */}
-                      <div className="flex flex-col items-start md:items-end gap-2 mt-3 md:mt-0 md:pl-4 border-t md:border-t-0 md:border-l pt-3 md:pt-0 border-gray-100">
+                      {/* NOTE: changed to allow wrapping and icon-only on very small screens */}
+                      <div className="flex flex-col items-start md:items-end gap-2 mt-3 md:mt-0 md:pl-4 border-t md:border-t-0 md:border-l pt-3 md:pt-0 border-gray-100 min-w-0">
                         {p.agentNumber && (
                           <a
                             href={`tel:${p.agentNumber}`}
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium break-words"
                           >
                             Call Agent: {p.agentNumber}
                           </a>
@@ -373,26 +358,35 @@ export default function AdminDashboard() {
                         <div className="text-xs text-gray-400">
                           Submitted: {p.submittedAt ? new Date(p.submittedAt).toLocaleDateString() : "-"}
                         </div>
-                        <div className="flex gap-2 mt-1">
+
+                        {/* Buttons container: allows wrap on small screens */}
+                        <div className="flex flex-wrap gap-2 mt-1 justify-start md:justify-end">
                           <button
+                            aria-label="Approve property"
                             disabled={isBusy}
                             onClick={() => approve(id)}
-                            className="px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition disabled:bg-gray-400"
+                            className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition disabled:bg-gray-400 flex-shrink-0"
                           >
-                            {isBusy ? "Processing..." : "Approve"}
+                            <FaCheckCircle />
+                            <span className="hidden sm:inline">Approve</span>
                           </button>
+
                           <button
+                            aria-label="Reject property"
                             disabled={isBusy}
                             onClick={() => reject(id)}
-                            className="px-3 py-1 rounded-full border border-red-500 text-red-500 text-sm font-medium hover:bg-red-50 transition disabled:opacity-50"
+                            className="flex items-center gap-2 px-3 py-1 rounded-full border border-red-500 text-red-500 text-sm font-medium hover:bg-red-50 transition disabled:opacity-50 flex-shrink-0"
                           >
-                            Reject
+                            <FaTimesCircle />
+                            <span className="hidden sm:inline">Reject</span>
                           </button>
+
                           <Link
                             to={`/admin/properties/${id}`}
-                            className="px-3 py-1 rounded-full border border-gray-300 text-gray-700 text-sm hover:bg-gray-100 transition"
+                            className="flex items-center gap-2 px-3 py-1 rounded-full border border-gray-300 text-gray-700 text-sm hover:bg-gray-100 transition flex-shrink-0"
                           >
-                            Open
+                            <FaExchangeAlt />
+                            <span className="hidden sm:inline">Open</span>
                           </Link>
                         </div>
                       </div>
@@ -409,9 +403,8 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* RIGHT: Recent properties + recent sellers */}
+        {/* RIGHT column (unchanged) */}
         <div className="space-y-6">
-          {/* Recent properties */}
           <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
             <h4 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
               <FaHome className="mr-2 text-blue-500" /> Recent Active Properties
@@ -442,7 +435,6 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Recent sellers */}
           <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
             <h4 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
               <FaUserTie className="mr-2 text-purple-500" /> Recent Sellers

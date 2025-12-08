@@ -117,28 +117,30 @@ const FAQ = () => {
   };
 
   return (
-    <section className="mt-12 mb-12">
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+    
+  <section className="mt-12 mb-12">
+    <div className="max-w-7xl mx-auto">
 
-          {/* Left Title */}
-          <div className="md:col-span-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
-              {title}
-            </h2>
-          </div>
+      {/* Centered Title at Top */}
+      <div className="mb-12 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+          {title}
+        </h2>
+      </div>
 
-          {/* Right FAQ List */}
-          <div className="md:col-span-8">
-            {items.map((item, i) => (
-              <FAQRow key={item.id} item={item} i={i} />
-            ))}
-          </div>
-
+      {/* FAQ List */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="md:col-span-12">
+          {items.map((item, i) => (
+            <FAQRow key={item.id} item={item} i={i} />
+          ))}
         </div>
       </div>
-    </section>
+
+    </div>
+  </section>
+
+
   );
 };
 

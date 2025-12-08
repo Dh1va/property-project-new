@@ -1,17 +1,9 @@
-// src/components/PageContainer.jsx
 import React from "react";
 
 const PageContainer = ({ className = "", children }) => {
   return (
     <div
-      className={`
-        max-w-[1400px] mx-auto
-        px-4      /* mobile */
-        sm:px-6   /* tablets */
-        lg:px-10  /* 1024px and ABOVE (desktop, large screens, ultrawide) */
-        ${className}
-      `}
-    >
+      className={` w-full mx-auto max-w-screen-xl   xl:max-w-screen-2xl    2xl:max-w-[1700px]    px-4    sm:px-6   lg:px-10   xl:px-14    2xl:px-20    ${className} `}   >
       {children}
     </div>
   );

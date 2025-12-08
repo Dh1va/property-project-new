@@ -319,14 +319,7 @@ export default function SellerDashboard() {
                           View
                         </Link>
 
-                        {p.agentNumber && (
-                          <a
-                            href={`tel:${p.agentNumber}`}
-                            className="px-3 py-1 rounded border text-blue-600 hover:bg-blue-50 text-xs"
-                          >
-                            Call Agent
-                          </a>
-                        )}
+                        
                       </div>
                     </li>
                   );

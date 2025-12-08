@@ -206,7 +206,7 @@ export default function AdminEnquiries() {
           </div>
 
           {/* ---------- DESKTOP TABLE ---------- */}
-          <div className="hidden md:block overflow-auto bg-white rounded shadow mt-4">
+          <div className="hidden md:block overflow-auto  mt-4">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b bg-gray-50">

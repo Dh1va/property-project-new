@@ -31,8 +31,8 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
 
   if (!properties.length)
     return (
-      <div className="mt-12 text-center space-y-3">
-        <p className="font-semibold text-xl text-gray-800">
+      <div className="mt-12 text-center space-y-3 ">
+        <p className="font-semibold text-xl text-gray-800 ">
           No properties match your search.
         </p>
         {totalCount > 0 && (
@@ -70,15 +70,15 @@ const PropertyList = ({ properties, totalCount: totalFromParent }) => {
   }
 
   return (
-    <div ref={listRef} className="mt-12">
+    <div ref={listRef} className="mt-6">
 
       {/* 🔥 Section Title */}
-      <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
+      <h2 className="text-2xl md:text-4xl font-bold mb-4 text-gray-900 text-center">
         Available Properties
       </h2>
 
       {/* Sub text: showing count */}
-      <div className="mb-8 text-start text-base font-medium text-gray-700">
+      <div className="mb-8 text-center text-base font-medium text-gray-700">
         Showing {startItem}-{endItem} of {properties.length} matching properties
         {totalCount > properties.length &&
           ` (from ${totalCount} total properties)`}
