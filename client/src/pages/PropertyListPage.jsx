@@ -50,7 +50,7 @@ const PropertyListPage = () => {
     setCurrentPage(1);
   }, [baseProperties]);
 
-  const propertiesPerPage = 8;
+  const propertiesPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {

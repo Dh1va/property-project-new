@@ -6,10 +6,12 @@ import Enquiry from "../components/Enquiry";
 import API from "../services/api";
 import CategoryGrid from "../components/CategoryGrid";
 import PageContainer from "../components/PageContainer";
-import RadialServiceSlider from "../components/RadialServiceSlider";
 import BlogList from "../components/BlogList";
 import TestimonialsSlider from "../components/TestimonialsSlider";
 import FAQ from "../components/FAQ";
+import MarqueeSlider from "../components/MarqueeSlider";
+
+
 
 
 const Buy = () => {
@@ -50,6 +52,10 @@ const Buy = () => {
     };
     fetchProps();
   }, []);
+
+ 
+
+
 
   const handleFilter = (filters) => {
     if (
@@ -162,7 +168,7 @@ const Buy = () => {
 
       {/* Centered Filter Form */}
       <div className="flex justify-center w-full">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full max-w-3xl text-black">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md w-full max-w-3xl text-black text-start">
           <FilterForm onFilter={handleFilter} />
         </div>
       </div>
@@ -211,6 +217,14 @@ const Buy = () => {
   </div> */}
 
  
+</PageContainer>
+
+<PageContainer>
+  {/* other sections */}
+  <div className="py-12">
+     <MarqueeSlider />
+  </div>
+  
 </PageContainer>
 
 <PageContainer>

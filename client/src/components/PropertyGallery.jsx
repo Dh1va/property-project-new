@@ -78,14 +78,14 @@ const PropertyGallery = ({ images = [], title = "Project gallery" }) => {
   return (
     <section className="mt-6 mb-10">
       {/* Heading */}
-      <h2 className="text-2xl md:text-3xl font-semibold mb-4">{title}</h2>
+      {/* <h2 className="text-2xl md:text-3xl font-semibold mb-4">{title}</h2> */}
 
       {/* Slider */}
       <div className="relative">
         <Slider ref={sliderRef} {...settings}>
           {images.map((src, idx) => (
             <div key={idx} className="px-2">
-              <div className="overflow-hidden rounded-2xl">
+              <div className="overflow-hidden rounded-lg">
                 <img
                   src={src}
                   alt={`Project image ${idx + 1}`}
