@@ -296,11 +296,27 @@ const PropertyDetails = () => {
                   <LinkIcon className="w-5 h-5 text-gray-700" />
                 </button>
 
-                <button onClick={handleSystemShare} className="p-3 rounded-full border border-gray-200 hover:bg-gray-50 transition" aria-label="Share">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314"/>
-                  </svg>
-                </button>
+                <button
+  onClick={handleSystemShare}
+  className="p-3 rounded-full border border-gray-200 hover:bg-gray-50 transition"
+  aria-label="Share"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    className="w-5 h-5 text-gray-700"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+  >
+    <circle cx="18" cy="5" r="2" />
+    <circle cx="6" cy="12" r="2" />
+    <circle cx="18" cy="19" r="2" />
+    <path d="M8 12l8-7" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M8 12l8 7" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+</button>
+
               </div>
             </div>
 
@@ -473,21 +489,32 @@ const PropertyDetails = () => {
 
             {/* Bank info block */}
             <div className="mt-4 bg-[#f8f6f2] rounded-xl p-5 md:p-6 border border-[#e5e1d9] shadow-inner">
-              <div className="flex items-center gap-4 mb-4">
-                <Landmark className="w-8 h-8 text-black hidden md:block flex-shrink-0" />
-                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900">All Major Banks Loan Available </h3>
-                  <p className="text-gray-700 text-sm md:text-base">Explore easy <strong>financing options</strong> and secure loans through top banks.</p>
-                </div>
-              </div>
+  <div className="flex items-center gap-4 mb-4">
+    <Landmark className="w-8 h-8 text-black hidden md:block flex-shrink-0" />
+    <div>
+      <h3 className="text-lg md:text-xl font-bold text-gray-900">All Major Banks Loan Available </h3>
+      <p className="text-gray-700 text-sm md:text-base">
+        Explore easy <strong>financing options</strong> and secure loans through top banks.
+      </p>
+    </div>
+  </div>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mt-3 justify-center md:justify-start">
-                {[Bank1, Bank2, Bank3, Bank4, Bank5, Bank6].map((bank, i) => (
-                  <img key={i} src={bank} alt={`Bank ${i + 1}`} className="h-10 md:h-12 w-auto object-contain opacity-80 hover:opacity-100 transition duration-300" />
-                ))}
-                <span className="text-gray-600 text-xs md:text-sm font-medium italic mt-2 md:mt-0">and many more leading banks...</span>
-              </div>
-            </div>
+  <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mt-3 justify-center md:justify-start">
+    {[Bank1, Bank2, Bank3, Bank4, Bank5, Bank6].map((bank, i) => (
+      <img
+        key={i}
+        src={bank}
+        alt={`Bank ${i + 1}`}
+        className="flex-1 max-w-[120px] h-auto object-contain opacity-80 hover:opacity-100 transition duration-300"
+      />
+    ))}
+
+    <span className="text-gray-600 text-xs md:text-sm font-medium italic mt-2 md:mt-0">
+      and many more leading banks...
+    </span>
+  </div>
+</div>
+
           </div>
 
           {/* RIGHT – Enquiry + Nearby (no extra gap) */}
