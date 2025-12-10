@@ -72,9 +72,10 @@ const CreateCard = ({ card }) => {
       "
     >
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 shadow-sm">
-          <Icon className="w-6 h-6 text-gray-800" />
-        </div>
+        <div className="p-3 rounded-full bg-gradient-to-br from-[#F5F3EE] to-[#D7D3CB] shadow-sm">
+  <Icon className="w-6 h-6 text-gray-800" />
+</div>
+
         <p className="text-base font-semibold text-gray-900">
           {card.title}
         </p>
@@ -104,7 +105,7 @@ const CreateCard = ({ card }) => {
           animation-direction: reverse;
         }
       `}</style>
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight text-center my-10">
+      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight text-center mt-15 mb-10">
             Designed for a Seamless Property Experience
           </h2>
 
