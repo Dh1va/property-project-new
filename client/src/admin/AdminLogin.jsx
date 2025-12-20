@@ -7,20 +7,35 @@ export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // ✅ NEW
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
-    setError(null);
-    const res = await login({
-      emailOrUsername: username,
-      password,
-      role: "admin",
-    });
 
-    if (res.success) navigate("/admin");
-    else setError(res.message);
+    if (loading) return; // safety guard
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await login({
+        emailOrUsername: username,
+        password,
+        role: "admin",
+      });
+
+      if (res.success) {
+        navigate("/admin");
+      } else {
+        setError(res.message || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,6 +54,7 @@ export default function AdminLogin() {
             placeholder="Username"
             className="w-full border rounded-md p-2"
             required
+            disabled={loading}
           />
 
           <input
@@ -48,17 +64,20 @@ export default function AdminLogin() {
             type="password"
             className="w-full border rounded-md p-2"
             required
+            disabled={loading}
           />
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transitio cursor-pointer"
+            disabled={loading}
+            className={`w-full py-2 rounded-md text-white cursor-pointer transition
+              ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"}
+            `}
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        {/* 🔙 Back inside the card – No hover effect on arrow */}
         <div className="mt-6 text-center">
           <Link
             to="/"
