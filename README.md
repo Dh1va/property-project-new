@@ -91,17 +91,23 @@ This project focuses on real-world architecture, secure authentication, and scal
 ## 🗂 Project Structure
 client/
 └── src/
-├── pages/
-├── components/
-├── routes/
-└── services/
+    ├── assets/
+    ├── components/
+    ├── pages/
+    ├── routes/
+    ├── services/
+    └── main.jsx
 
 server/
 ├── controllers/
 ├── models/
 ├── routes/
 ├── middleware/
-└── utils/
+├── utils/
+├── config/
+├── uploads/
+├── app.js
+└── server.js
 
 ---
 
