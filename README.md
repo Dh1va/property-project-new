@@ -89,3 +89,81 @@ This project focuses on real-world architecture, secure authentication, and scal
 ---
 
 ## 🗂 Project Structure
+client/
+└── src/
+├── pages/
+├── components/
+├── routes/
+└── services/
+
+server/
+├── controllers/
+├── models/
+├── routes/
+├── middleware/
+└── utils/
+
+---
+
+## 🔐 Security Highlights
+
+- Password hashing with bcrypt  
+- JWT token verification middleware  
+- Role-based authorization guards  
+- Ownership checks for seller resources  
+- Protected API routes  
+- Input validation  
+- Secure Cloudinary uploads  
+
+---
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in server:
+MONGO_URI=
+JWT_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+EMAIL_USER=
+EMAIL_PASS=
+
+---
+
+## ▶️ Running Locally
+
+### Backend
+cd server
+npm install
+npm run dev
+
+### Frontend
+cd client
+npm install
+npm run dev
+
+
+📌 Future Improvements
+
+OTP authentication
+
+Refresh tokens
+
+Pagination & filtering
+
+Advanced property search
+
+Activity logs
+
+Admin analytics dashboard
+
+⭐ Why this project exists
+
+This project was built to practice and demonstrate:
+
+Real-world role-based systems
+
+Secure full-stack authentication
+
+Dashboard architecture
+
